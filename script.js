@@ -13,12 +13,13 @@
 ========================================================= */
 
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY_AQUI",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO_ID",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId: "SUA_APP_ID_AQUI"
+  apiKey: "AIzaSyDIQ8JtxKJrsZQedoVUig5bUmxc6u3wvAQ",
+  authDomain: "my-project-slide-6d2cd.firebaseapp.com",
+  projectId: "my-project-slide-6d2cd",
+  storageBucket: "my-project-slide-6d2cd.firebasestorage.app",
+  messagingSenderId: "722407689614",
+  appId: "1:722407689614:web:97f7a947dac7a1648fe8df",
+  measurementId: "G-8L6RL89M41"
 };
 
 
