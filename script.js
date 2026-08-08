@@ -1099,7 +1099,7 @@ function renderSlides(song) {
         "slide-header";
 
       header.textContent =
-        SLIDE ${index + 1};
+        'SLIDE $(index + 1)';
 
 
       const content =
