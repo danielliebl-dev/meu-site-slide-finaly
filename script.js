@@ -1,15 +1,5 @@
 /* =========================================================
    CONFIGURAÇÃO DO FIREBASE
-=========================================================
-
-   COLOQUE AQUI OS DADOS DO SEU PROJETO FIREBASE.
-
-   No Firebase:
-   Configurações do projeto
-   → Seus aplicativos
-   → Aplicativo da Web
-   → Configuração do SDK
-
 ========================================================= */
 
 const firebaseConfig = {
@@ -24,7 +14,7 @@ const firebaseConfig = {
 
 
 /* =========================================================
-   INICIALIZAÇÃO DO FIREBASE
+   INICIALIZAÇÃO
 ========================================================= */
 
 firebase.initializeApp(firebaseConfig);
@@ -34,66 +24,42 @@ const db = firebase.firestore();
 
 
 /* =========================================================
-   ESTADO DA APLICAÇÃO
+   ESTADO
 ========================================================= */
 
 let currentUser = null;
+
 let allSongs = [];
+
 let filteredSongs = [];
+
+let localSongs = [];
+
 let activeSongId = null;
+
 let currentFilter = "Todos";
+
 let unsubscribeSongs = null;
 
-
-/* =========================================================
-   ESTADO DA APRESENTAÇÃO
-========================================================= */
-
 let currentSongIndex = 0;
+
 let currentSlideIndex = 0;
 
+let pendingSong = null;
+
 
 /* =========================================================
-   ELEMENTOS DO HTML
+   ELEMENTOS
 ========================================================= */
-
-const authScreen =
-  document.getElementById("authScreen");
 
 const appScreen =
   document.getElementById("appScreen");
-
-const authForm =
-  document.getElementById("authForm");
-
-const emailInput =
-  document.getElementById("emailInput");
-
-const passwordInput =
-  document.getElementById("passwordInput");
-
-const togglePasswordBtn =
-  document.getElementById("togglePasswordBtn");
-
-const loginBtn =
-  document.getElementById("loginBtn");
-
-const registerBtn =
-  document.getElementById("registerBtn");
-
-const authError =
-  document.getElementById("authError");
 
 const userEmailDisplay =
   document.getElementById("userEmailDisplay");
 
 const logoutBtn =
   document.getElementById("logoutBtn");
-
-
-/* =========================================================
-   ELEMENTOS DAS MÚSICAS
-========================================================= */
 
 const songTitleInput =
   document.getElementById("songTitleInput");
@@ -130,6 +96,38 @@ const startPresentationBtn =
 
 
 /* =========================================================
+   ELEMENTOS DO LOGIN
+========================================================= */
+
+const authModal =
+  document.getElementById("authModal");
+
+const authForm =
+  document.getElementById("authForm");
+
+const emailInput =
+  document.getElementById("emailInput");
+
+const passwordInput =
+  document.getElementById("passwordInput");
+
+const togglePasswordBtn =
+  document.getElementById("togglePasswordBtn");
+
+const loginBtn =
+  document.getElementById("loginBtn");
+
+const registerBtn =
+  document.getElementById("registerBtn");
+
+const closeAuthBtn =
+  document.getElementById("closeAuthBtn");
+
+const authError =
+  document.getElementById("authError");
+
+
+/* =========================================================
    ELEMENTOS DA APRESENTAÇÃO
 ========================================================= */
 
@@ -159,50 +157,206 @@ const nextSlideBtn =
 
 
 /* =========================================================
-   MOSTRAR / OCULTAR SENHA
+   UTILIDADES
 ========================================================= */
 
-togglePasswordBtn.addEventListener("click", () => {
+function criarIdLocal() {
 
-  const isPassword =
-    passwordInput.type === "password";
+  return "local_" +
+    Date.now() +
+    "_" +
+    Math.random()
+      .toString(36)
+      .substring(2, 9);
 
-  passwordInput.type =
-    isPassword ? "text" : "password";
+}
 
-  togglePasswordBtn.textContent =
-    isPassword ? "🙈" : "👁️";
 
-});
+function salvarLocalmente() {
+
+  localStorage.setItem(
+    "missaSlidesLocalSongs",
+    JSON.stringify(localSongs)
+  );
+
+}
+
+
+function carregarMusicasLocais() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        "missaSlidesLocalSongs"
+      );
+
+    localSongs =
+      saved
+        ? JSON.parse(saved)
+        : [];
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    localSongs = [];
+
+  }
+
+}
+
+
+function mostrarErro(mensagem) {
+
+  if (authError) {
+
+    authError.textContent =
+      mensagem;
+
+  }
+
+}
+
+
+function limparErro() {
+
+  if (authError) {
+
+    authError.textContent =
+      "";
+
+  }
+
+}
 
 
 /* =========================================================
-   LOGIN COM ENTER
+   MODAL DE LOGIN
 ========================================================= */
 
-authForm.addEventListener("submit", (event) => {
+function abrirAuthModal() {
 
-  event.preventDefault();
+  limparErro();
 
-  fazerLogin();
+  authModal.classList.remove(
+    "hidden"
+  );
 
-});
+  document.body.style.overflow =
+    "hidden";
+
+}
+
+
+function fecharAuthModal() {
+
+  authModal.classList.add(
+    "hidden"
+  );
+
+  document.body.style.overflow =
+    "";
+
+  limparErro();
+
+}
+
+
+/* =========================================================
+   SENHA
+========================================================= */
+
+togglePasswordBtn.addEventListener(
+  "click",
+  () => {
+
+    const mostrando =
+      passwordInput.type === "text";
+
+    passwordInput.type =
+      mostrando
+        ? "password"
+        : "text";
+
+    togglePasswordBtn.textContent =
+      mostrando
+        ? "👁️"
+        : "🙈";
+
+  }
+);
+
+
+/* =========================================================
+   FECHAR LOGIN
+========================================================= */
+
+closeAuthBtn.addEventListener(
+  "click",
+  () => {
+
+    pendingSong = null;
+
+    fecharAuthModal();
+
+  }
+);
+
+
+/* =========================================================
+   CLIQUE FORA DO MODAL
+========================================================= */
+
+authModal.addEventListener(
+  "click",
+  (event) => {
+
+    if (
+      event.target === authModal
+    ) {
+
+      pendingSong = null;
+
+      fecharAuthModal();
+
+    }
+
+  }
+);
 
 
 /* =========================================================
    LOGIN
 ========================================================= */
 
-loginBtn.addEventListener("click", (event) => {
+authForm.addEventListener(
+  "submit",
+  async (event) => {
 
-  event.preventDefault();
+    event.preventDefault();
 
-  fazerLogin();
+    await fazerLogin();
 
-});
+  }
+);
 
 
-function fazerLogin() {
+loginBtn.addEventListener(
+  "click",
+  async (event) => {
+
+    event.preventDefault();
+
+    await fazerLogin();
+
+  }
+);
+
+
+async function fazerLogin() {
 
   const email =
     emailInput.value.trim();
@@ -210,72 +364,61 @@ function fazerLogin() {
   const password =
     passwordInput.value;
 
-  authError.textContent = "";
+  limparErro();
 
 
   if (!email || !password) {
 
-    authError.textContent =
-      "Preencha o e-mail e a senha.";
+    mostrarErro(
+      "Preencha o e-mail e a senha."
+    );
 
     return;
 
   }
 
 
-  loginBtn.disabled = true;
+  loginBtn.disabled =
+    true;
 
   loginBtn.textContent =
     "Entrando...";
 
 
-  auth.signInWithEmailAndPassword(
-    email,
-    password
-  )
+  try {
 
-  .catch((error) => {
+    await auth
+      .signInWithEmailAndPassword(
+        email,
+        password
+      );
+
+
+    fecharAuthModal();
+
+    await continuarSalvamentoPendente();
+
+  }
+
+  catch (error) {
 
     console.error(error);
 
-    if (
-      error.code === "auth/wrong-password" ||
-      error.code === "auth/user-not-found" ||
-      error.code === "auth/invalid-credential"
-    ) {
+    mostrarErro(
+      traduzirErroFirebase(error)
+    );
 
-      authError.textContent =
-        "E-mail ou senha incorretos.";
+  }
 
-    }
+  finally {
 
-    else if (
-      error.code === "auth/invalid-email"
-    ) {
-
-      authError.textContent =
-        "Digite um e-mail válido.";
-
-    }
-
-    else {
-
-      authError.textContent =
-        "Erro ao entrar: " +
-        traduzirErroFirebase(error);
-
-    }
-
-  })
-
-  .finally(() => {
-
-    loginBtn.disabled = false;
+    loginBtn.disabled =
+      false;
 
     loginBtn.textContent =
       "Entrar";
 
-  });
+  }
 
 }
 
@@ -284,104 +427,94 @@ function fazerLogin() {
    CRIAR CONTA
 ========================================================= */
 
-registerBtn.addEventListener("click", () => {
+registerBtn.addEventListener(
+  "click",
+  async () => {
 
-  const email =
-    emailInput.value.trim();
+    const email =
+      emailInput.value.trim();
 
-  const password =
-    passwordInput.value;
+    const password =
+      passwordInput.value;
 
-  authError.textContent = "";
-
-
-  if (!email || !password) {
-
-    authError.textContent =
-      "Preencha o e-mail e a senha.";
-
-    return;
-
-  }
+    limparErro();
 
 
-  if (password.length < 6) {
+    if (!email || !password) {
 
-    authError.textContent =
-      "A senha deve ter no mínimo 6 caracteres.";
+      mostrarErro(
+        "Preencha o e-mail e a senha."
+      );
 
-    return;
-
-  }
-
-
-  registerBtn.disabled = true;
-
-  registerBtn.textContent =
-    "Criando...";
-
-
-  auth.createUserWithEmailAndPassword(
-    email,
-    password
-  )
-
-  .then(() => {
-
-    alert(
-      "Conta criada com sucesso!"
-    );
-
-  })
-
-  .catch((error) => {
-
-    console.error(error);
-
-    if (
-      error.code ===
-      "auth/email-already-in-use"
-    ) {
-
-      authError.textContent =
-        "Este e-mail já está cadastrado.";
+      return;
 
     }
 
-    else if (
-      error.code ===
-      "auth/invalid-email"
-    ) {
 
-      authError.textContent =
-        "Digite um e-mail válido.";
+    if (password.length < 6) {
 
-    }
+      mostrarErro(
+        "A senha deve ter no mínimo 6 caracteres."
+      );
 
-    else {
-
-      authError.textContent =
-        "Erro ao cadastrar: " +
-        traduzirErroFirebase(error);
+      return;
 
     }
 
-  })
 
-  .finally(() => {
-
-    registerBtn.disabled = false;
+    registerBtn.disabled =
+      true;
 
     registerBtn.textContent =
-      "Criar Conta";
+      "Criando...";
 
-  });
 
-});
+    try {
+
+      await auth
+        .createUserWithEmailAndPassword(
+          email,
+          password
+        );
+
+
+      fecharAuthModal();
+
+      alert(
+        "Conta criada com sucesso!"
+      );
+
+
+      await continuarSalvamentoPendente();
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+      mostrarErro(
+        traduzirErroFirebase(error)
+      );
+
+    }
+
+    finally {
+
+      registerBtn.disabled =
+        false;
+
+      registerBtn.textContent =
+        "Criar Conta";
+
+    }
+
+  }
+);
 
 
 /* =========================================================
-   TRADUZIR ERROS DO FIREBASE
+   TRADUZIR ERROS
 ========================================================= */
 
 function traduzirErroFirebase(error) {
@@ -389,19 +522,35 @@ function traduzirErroFirebase(error) {
   const codigo =
     error.code || "";
 
+
   const mensagens = {
 
+    "auth/invalid-email":
+      "Digite um e-mail válido.",
+
+    "auth/invalid-credential":
+      "E-mail ou senha incorretos.",
+
+    "auth/wrong-password":
+      "E-mail ou senha incorretos.",
+
+    "auth/user-not-found":
+      "E-mail ou senha incorretos.",
+
+    "auth/email-already-in-use":
+      "Este e-mail já está cadastrado. Tente entrar.",
+
+    "auth/weak-password":
+      "A senha deve ter pelo menos 6 caracteres.",
+
     "auth/network-request-failed":
-      "Verifique sua conexão com a internet.",
+      "Problema de conexão com a internet.",
 
     "auth/too-many-requests":
       "Muitas tentativas. Aguarde um pouco.",
 
-    "auth/weak-password":
-      "A senha é muito fraca.",
-
     "auth/operation-not-allowed":
-      "O login por e-mail/senha não está habilitado no Firebase.",
+      "O login por e-mail não está ativado no Firebase.",
 
     "permission-denied":
       "Você não tem permissão para acessar esses dados."
@@ -411,7 +560,7 @@ function traduzirErroFirebase(error) {
 
   return mensagens[codigo] ||
     error.message ||
-    "Erro desconhecido.";
+    "Ocorreu um erro.";
 
 }
 
@@ -422,224 +571,11 @@ function traduzirErroFirebase(error) {
 
 logoutBtn.addEventListener(
   "click",
-  () => {
-
-    auth.signOut();
-
-  }
-);
-
-
-/* =========================================================
-   MONITOR DE AUTENTICAÇÃO
-========================================================= */
-
-auth.onAuthStateChanged((user) => {
-
-  if (user) {
-
-    currentUser = user;
-
-    userEmailDisplay.textContent =
-      user.email || "Usuário";
-
-    authScreen.classList.add(
-      "hidden"
-    );
-
-    appScreen.classList.remove(
-      "hidden"
-    );
-
-    loadUserSongs();
-
-  }
-
-  else {
-
-    currentUser = null;
-
-    allSongs = [];
-
-    filteredSongs = [];
-
-    activeSongId = null;
-
-    authScreen.classList.remove(
-      "hidden"
-    );
-
-    appScreen.classList.add(
-      "hidden"
-    );
-
-
-    if (unsubscribeSongs) {
-
-      unsubscribeSongs();
-
-      unsubscribeSongs = null;
-
-    }
-
-  }
-
-});
-
-
-/* =========================================================
-   SALVAR MÚSICA
-========================================================= */
-
-addSongBtn.addEventListener(
-  "click",
   async () => {
-
-    if (!currentUser) {
-
-      alert(
-        "Você precisa estar logado."
-      );
-
-      return;
-
-    }
-
-
-    const title =
-      songTitleInput.value.trim();
-
-    const category =
-      songCategorySelect.value;
-
-    const lyrics =
-      songLyricsInput.value.trim();
-
-    const versesPerSlide =
-      parseInt(
-        versesSelect.value,
-        10
-      );
-
-
-    if (!title) {
-
-      alert(
-        "Digite o título da música."
-      );
-
-      songTitleInput.focus();
-
-      return;
-
-    }
-
-
-    if (!lyrics) {
-
-      alert(
-        "Cole a letra da música."
-      );
-
-      songLyricsInput.focus();
-
-      return;
-
-    }
-
-
-    /* TRANSFORMA A LETRA EM VERSOS */
-
-    const lines =
-      lyrics
-        .split(/\r?\n/)
-        .map(line => line.trim())
-        .filter(
-          line => line.length > 0
-        );
-
-
-    if (lines.length === 0) {
-
-      alert(
-        "A letra não possui versos válidos."
-      );
-
-      return;
-
-    }
-
-
-    /* CRIA OS SLIDES */
-
-    const slides = [];
-
-
-    for (
-      let i = 0;
-      i < lines.length;
-      i += versesPerSlide
-    ) {
-
-      slides.push(
-        lines
-          .slice(
-            i,
-            i + versesPerSlide
-          )
-          .join("\n")
-      );
-
-    }
-
-
-    const newSong = {
-
-      userId:
-        currentUser.uid,
-
-      title:
-        title,
-
-      category:
-        category,
-
-      slides:
-        slides,
-
-      createdAt:
-        firebase.firestore.FieldValue
-          .serverTimestamp()
-
-    };
-
 
     try {
 
-      addSongBtn.disabled = true;
-
-      addSongBtn.textContent =
-        "☁️ Salvando...";
-
-
-      const docRef =
-        await db
-          .collection("songs")
-          .add(newSong);
-
-
-      songTitleInput.value = "";
-
-      songLyricsInput.value = "";
-
-      activeSongId =
-        docRef.id;
-
-
-      alert(
-        "Música salva com sucesso!"
-      );
-
+      await auth.signOut();
 
     }
 
@@ -647,19 +583,59 @@ addSongBtn.addEventListener(
 
       console.error(error);
 
-      alert(
-        "Erro ao salvar música:\n\n" +
-        traduzirErroFirebase(error)
+    }
+
+  }
+);
+
+
+/* =========================================================
+   AUTENTICAÇÃO
+========================================================= */
+
+auth.onAuthStateChanged(
+  (user) => {
+
+    currentUser =
+      user || null;
+
+
+    if (user) {
+
+      userEmailDisplay.textContent =
+        user.email || "Usuário";
+
+      logoutBtn.classList.remove(
+        "hidden"
       );
+
+      carregarMusicasDaNuvem();
 
     }
 
-    finally {
+    else {
 
-      addSongBtn.disabled = false;
+      userEmailDisplay.textContent =
+        "Visitante";
 
-      addSongBtn.textContent =
-        "☁️ Salvar Música";
+      logoutBtn.classList.add(
+        "hidden"
+      );
+
+
+      if (unsubscribeSongs) {
+
+        unsubscribeSongs();
+
+        unsubscribeSongs =
+          null;
+
+      }
+
+
+      allSongs = [];
+
+      combinarMusicas();
 
     }
 
@@ -668,10 +644,19 @@ addSongBtn.addEventListener(
 
 
 /* =========================================================
-   CARREGAR MÚSICAS DO USUÁRIO
+   CARREGAR MÚSICAS LOCAIS
 ========================================================= */
 
-function loadUserSongs() {
+carregarMusicasLocais();
+
+combinarMusicas();
+
+
+/* =========================================================
+   CARREGAR MÚSICAS DA NUVEM
+========================================================= */
+
+function carregarMusicasDaNuvem() {
 
   if (!currentUser) return;
 
@@ -691,58 +676,157 @@ function loadUserSongs() {
         "==",
         currentUser.uid
       )
-
       .onSnapshot(
 
         (snapshot) => {
 
           allSongs =
             snapshot.docs.map(
-              doc => ({
+              (doc) => ({
 
-                id: doc.id,
+                id:
+                  doc.id,
 
-                ...doc.data()
+                ...doc.data(),
+
+                cloud:
+                  true
 
               })
             );
 
 
-          /* ORDENA POR DATA */
-
           allSongs.sort(
-            (a, b) => {
-
-              const dateA =
-                a.createdAt?.toMillis?.() ||
-                0;
-
-              const dateB =
-                b.createdAt?.toMillis?.() ||
-                0;
-
-              return dateB - dateA;
-
-            }
+            ordenarMusicas
           );
 
 
-          applyFilter();
+          combinarMusicas();
 
         },
 
         (error) => {
 
-          console.error(error);
+          console.error(
+            "Erro Firestore:",
+            error
+          );
+
 
           alert(
-            "Erro ao carregar suas músicas:\n\n" +
+            "Não foi possível carregar as músicas da nuvem:\n\n" +
             traduzirErroFirebase(error)
           );
 
         }
 
       );
+
+}
+
+
+/* =========================================================
+   COMBINAR LOCAL + NUVEM
+========================================================= */
+
+function combinarMusicas() {
+
+  let musicas = [];
+
+
+  if (currentUser) {
+
+    musicas =
+      [
+        ...allSongs,
+        ...localSongs
+      ];
+
+  }
+
+  else {
+
+    musicas =
+      [
+        ...localSongs
+      ];
+
+  }
+
+
+  musicas.sort(
+    ordenarMusicas
+  );
+
+
+  filteredSongs =
+    musicas.filter(
+      aplicarFiltroNaMusica
+    );
+
+
+  renderPlaylist();
+
+
+  if (
+    activeSongId &&
+    musicas.some(
+      song =>
+        song.id ===
+        activeSongId
+    )
+  ) {
+
+    selecionarSemRender(
+      activeSongId
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   ORDENAÇÃO
+========================================================= */
+
+function ordenarMusicas(a, b) {
+
+  const dataA =
+    obterDataMusica(a);
+
+  const dataB =
+    obterDataMusica(b);
+
+  return dataB - dataA;
+
+}
+
+
+function obterDataMusica(song) {
+
+  if (
+    song.createdAt &&
+    typeof song.createdAt.toMillis ===
+      "function"
+  ) {
+
+    return song.createdAt.toMillis();
+
+  }
+
+
+  if (
+    typeof song.createdAt ===
+    "number"
+  ) {
+
+    return song.createdAt;
+
+  }
+
+
+  return 0;
 
 }
 
@@ -758,14 +842,14 @@ const filterChips =
 
 
 filterChips.forEach(
-  chip => {
+  (chip) => {
 
     chip.addEventListener(
       "click",
       () => {
 
         filterChips.forEach(
-          item => {
+          (item) => {
 
             item.classList.remove(
               "active"
@@ -784,7 +868,7 @@ filterChips.forEach(
           chip.dataset.category;
 
 
-        applyFilter();
+        combinarMusicas();
 
       }
     );
@@ -793,69 +877,59 @@ filterChips.forEach(
 );
 
 
-/* =========================================================
-   APLICAR FILTRO
-========================================================= */
-
-function applyFilter() {
+function aplicarFiltroNaMusica(song) {
 
   if (
-    currentFilter === "Todos"
+    currentFilter ===
+    "Todos"
   ) {
 
-    filteredSongs =
-      [...allSongs];
-
-  }
-
-  else {
-
-    filteredSongs =
-      allSongs.filter(
-        song =>
-          song.category ===
-          currentFilter
-      );
+    return true;
 
   }
 
 
-  renderPlaylist();
+  return (
+    song.category ===
+    currentFilter
+  );
 
 }
 
 
 /* =========================================================
-   MOSTRAR PLAYLIST
+   RENDERIZAR PLAYLIST
 ========================================================= */
 
 function renderPlaylist() {
 
-  playlist.innerHTML = "";
+  playlist.innerHTML =
+    "";
 
   songCount.textContent =
     filteredSongs.length;
 
 
   if (
-    filteredSongs.length === 0
+    filteredSongs.length ===
+    0
   ) {
 
-    const empty =
+    const item =
       document.createElement(
         "li"
       );
 
-    empty.className =
+    item.className =
       "playlist-empty";
 
-    empty.textContent =
+    item.textContent =
       currentFilter === "Todos"
         ? "Nenhuma música cadastrada."
         : "Nenhuma música neste momento.";
 
     playlist.appendChild(
-      empty
+      item
     );
 
 
@@ -868,7 +942,7 @@ function renderPlaylist() {
 
 
   filteredSongs.forEach(
-    song => {
+    (song) => {
 
       const li =
         document.createElement(
@@ -933,8 +1007,6 @@ function renderPlaylist() {
       );
 
 
-      /* BOTÃO EXCLUIR */
-
       const deleteBtn =
         document.createElement(
           "button"
@@ -946,11 +1018,11 @@ function renderPlaylist() {
       deleteBtn.type =
         "button";
 
-      deleteBtn.title =
-        "Excluir música";
-
       deleteBtn.textContent =
         "🗑️";
+
+      deleteBtn.title =
+        "Excluir música";
 
 
       deleteBtn.addEventListener(
@@ -959,7 +1031,9 @@ function renderPlaylist() {
 
           event.stopPropagation();
 
-          deleteSong(song);
+          excluirMusica(
+            song
+          );
 
         }
       );
@@ -978,7 +1052,7 @@ function renderPlaylist() {
         "click",
         () => {
 
-          selectSong(
+          selecionarMusica(
             song.id
           );
 
@@ -995,7 +1069,7 @@ function renderPlaylist() {
 
 
   startPresentationBtn.disabled =
-    filteredSongs.length === 0;
+    false;
 
 }
 
@@ -1004,12 +1078,27 @@ function renderPlaylist() {
    SELECIONAR MÚSICA
 ========================================================= */
 
-function selectSong(songId) {
+function selecionarMusica(songId) {
+
+  activeSongId =
+    songId;
+
+
+  selecionarSemRender(
+    songId
+  );
+
+
+  renderPlaylist();
+
+}
+
+
+function selecionarSemRender(songId) {
 
   const song =
-    allSongs.find(
-      item =>
-        item.id === songId
+    encontrarMusica(
+      songId
     );
 
 
@@ -1030,15 +1119,36 @@ function selectSong(songId) {
     } slides`;
 
 
-  renderSlides(song);
-
-  renderPlaylist();
+  renderSlides(
+    song
+  );
 
 }
 
 
 /* =========================================================
-   MOSTRAR SLIDES
+   ENCONTRAR MÚSICA
+========================================================= */
+
+function encontrarMusica(songId) {
+
+  const todas = [
+    ...allSongs,
+    ...localSongs
+  ];
+
+
+  return todas.find(
+    song =>
+      song.id ===
+      songId
+  );
+
+}
+
+
+/* =========================================================
+   RENDERIZAR SLIDES
 ========================================================= */
 
 function renderSlides(song) {
@@ -1049,24 +1159,22 @@ function renderSlides(song) {
 
   if (
     !song.slides ||
-    song.slides.length === 0
+    song.slides.length ===
+      0
   ) {
 
     slidesOutput.innerHTML = `
 
       <div class="empty-state">
 
-        <span class="empty-icon">
-          ⚠️
-        </span>
+        <span>⚠️</span>
 
         <h3>
           Esta música não possui slides
         </h3>
 
         <p>
-          Cadastre a música novamente
-          com a letra preenchida.
+          Cadastre a letra novamente.
         </p>
 
       </div>
@@ -1099,7 +1207,7 @@ function renderSlides(song) {
         "slide-header";
 
       header.textContent =
-        'SLIDE $(index + 1)';
+        SLIDE ${index + 1};
 
 
       const content =
@@ -1134,100 +1242,74 @@ function renderSlides(song) {
 
 
 /* =========================================================
-   EXCLUIR MÚSICA
+   SALVAR MÚSICA
 ========================================================= */
 
-async function deleteSong(song) {
+addSongBtn.addEventListener(
+  "click",
+  async () => {
 
-  if (!currentUser) return;
+    const title =
+      songTitleInput.value.trim();
 
+    const category =
+      songCategorySelect.value;
 
-  const confirmed =
-    confirm(
-      Deseja realmente excluir a música "${song.title}"?
-    );
+    const lyrics =
+      songLyricsInput.value.trim();
 
-
-  if (!confirmed) return;
-
-
-  try {
-
-    await db
-      .collection("songs")
-      .doc(song.id)
-      .delete();
+    const versesPerSlide =
+      parseInt(
+        versesSelect.value,
+        10
+      );
 
 
-    if (
-      activeSongId ===
-      song.id
-    ) {
+    if (!title) {
 
-      activeSongId = null;
+      alert(
+        "Digite o título da música."
+      );
 
+      songTitleInput.focus();
 
-      selectedSongTitle.textContent =
-        "Selecione ou adicione uma música";
-
-
-      selectedSongSubtitle.textContent =
-        "Os slides da música escolhida aparecerão aqui.";
-
-
-      slidesOutput.innerHTML = `
-
-        <div class="empty-state">
-
-          <span class="empty-icon">
-            🎵
-          </span>
-
-          <h3>
-            Nenhuma música selecionada
-          </h3>
-
-          <p>
-            Selecione uma música do seu repertório.
-          </p>
-
-        </div>
-
-      `;
+      return;
 
     }
 
 
-  }
+    if (!lyrics) {
 
-  catch (error) {
+      alert(
+        "Cole a letra da música."
+      );
 
-    console.error(error);
+      songLyricsInput.focus();
 
-    alert(
-      "Erro ao excluir música:\n\n" +
-      traduzirErroFirebase(error)
-    );
+      return;
 
-  }
-
-}
+    }
 
 
-/* =========================================================
-   INICIAR APRESENTAÇÃO
-========================================================= */
+    const lines =
+      lyrics
+        .split(/\r?\n/)
+        .map(
+          line =>
+            line.trim()
+        )
+        .filter(
+          line =>
+            line.length > 0
+        );
 
-startPresentationBtn.addEventListener(
-  "click",
-  () => {
 
     if (
-      filteredSongs.length === 0
+      lines.length === 0
     ) {
 
       alert(
-        "Não há músicas para apresentar."
+        "Digite a letra da música."
       );
 
       return;
@@ -1235,68 +1317,65 @@ startPresentationBtn.addEventListener(
     }
 
 
-    const selectedIndex =
-      filteredSongs.findIndex(
-        song =>
-          song.id ===
-          activeSongId
+    const slides = [];
+
+
+    for (
+      let i = 0;
+      i < lines.length;
+      i += versesPerSlide
+    ) {
+
+      slides.push(
+        lines
+          .slice(
+            i,
+            i + versesPerSlide
+          )
+          .join("\n")
       );
 
-
-    currentSongIndex =
-      selectedIndex >= 0
-        ? selectedIndex
-        : 0;
+    }
 
 
-    currentSlideIndex =
-      0;
+    const song = {
+
+      title:
+        title,
+
+      category:
+        category,
+
+      slides:
+        slides,
+
+      createdAt:
+        Date.now()
+
+    };
 
 
-    presentationModal.classList.remove(
-      "hidden"
-    );
+    /*
+      Se já estiver logado,
+      salva diretamente na nuvem.
+    */
+
+    if (currentUser) {
+
+      await salvarNaNuvem(
+        song
+      );
+
+      return;
+
+    }
 
 
-    document.body.style.overflow =
-      "hidden";
+    /*
+      Se não estiver logado,
+      guarda temporariamente e
+      abre o login.
+    */
 
-
-    updatePresentation();
-
-
-    entrarTelaCheia();
-
-  }
-);
-
-
-/* =========================================================
-   ATUALIZAR APRESENTAÇÃO
-========================================================= */
-
-function updatePresentation() {
-
-  if (
-    filteredSongs.length === 0
-  ) {
-
-    return;
-
-  }
-
-
-  const song =
-    filteredSongs[
-      currentSongIndex
-    ];
-
-
-  if (!song) return;
-
-
-  const slides =
-    song.slides || [];
-
-
-  if (slides.length === 0) {
+    pendingSong =
+      so
