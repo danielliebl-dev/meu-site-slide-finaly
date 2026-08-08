@@ -1356,4 +1356,776 @@ loginBtn.addEventListener(
 
 
 /* =========================================================
+   RENDERIZAR REPERTÓRIO SALVO
+========================================================= */
+
+function renderSavedSongs() {
+
+  savedSongsContainer.innerHTML = "";
+
+
+  if (!currentUser) {
+
+    savedSongsContainer.innerHTML = `
+      <p class="empty-message">
+        Entre na sua conta para ver suas músicas salvas.
+      </p>
+    `;
+
+    return;
+  }
+
+
+  if (savedSongs.length === 0) {
+
+    savedSongsContainer.innerHTML = `
+      <p class="empty-message">
+        Você ainda não possui músicas salvas.
+      </p>
+    `;
+
+    return;
+  }
+
+
+  const filteredSongs =
+    activeFilter === "Todos"
+      ? savedSongs
+      : savedSongs.filter(
+          song =>
+            song.category === activeFilter
+        );
+
+
+  if (filteredSongs.length === 0) {
+
+    savedSongsContainer.innerHTML = `
+      <p class="empty-message">
+        Nenhuma música encontrada nessa categoria.
+      </p>
+    `;
+
+    return;
+  }
+
+
+  filteredSongs.forEach(song => {
+
+    const item =
+      document.createElement("div");
+
+    item.className =
+      "saved-song";
+
+
+    const info =
+      document.createElement("div");
+
+    info.className =
+      "saved-song-info";
+
+
+    const title =
+      document.createElement("div");
+
+    title.className =
+      "saved-song-title";
+
+    title.textContent =
+      song.title;
+
+
+    const category =
+      document.createElement("div");
+
+    category.className =
+      "saved-song-category";
+
+    category.textContent =
+      `${song.category} • ${
+        song.slides
+          ? song.slides.length
+          : 0
+      } slides`;
+
+
+    info.appendChild(title);
+    info.appendChild(category);
+
+
+    const buttons =
+      document.createElement("div");
+
+
+    const loadButton =
+      document.createElement("button");
+
+    loadButton.type =
+      "button";
+
+    loadButton.textContent =
+      "Abrir";
+
+
+    loadButton.addEventListener(
+      "click",
+      () => {
+
+        loadSavedSong(
+          song
+        );
+
+      }
+    );
+
+
+    const deleteButton =
+      document.createElement("button");
+
+    deleteButton.type =
+      "button";
+
+    deleteButton.textContent =
+      "🗑️";
+
+
+    deleteButton.addEventListener(
+      "click",
+      () => {
+
+        deleteSavedSong(
+          song.id
+        );
+
+      }
+    );
+
+
+    buttons.appendChild(
+      loadButton
+    );
+
+    buttons.appendChild(
+      deleteButton
+    );
+
+
+    item.appendChild(info);
+
+    item.appendChild(buttons);
+
+
+    savedSongsContainer.appendChild(
+      item
+    );
+
+  });
+
+}
+
+
+/* =========================================================
+   SALVAR MÚSICA NO FIREBASE
+========================================================= */
+
+async function saveCurrentSong() {
+
+  if (!currentUser) {
+
+    savePanel.classList.remove(
+      "hidden"
+    );
+
+    showAuthMessage(
+      "Entre ou crie uma conta para salvar a música."
+    );
+
+    return;
+
+  }
+
+
+  const title =
+    songTitle.value.trim();
+
+  const category =
+    songCategory.value;
+
+  const lyrics =
+    songLyrics.value.trim();
+
+  const amount =
+    parseInt(
+      versesPerSlide.value,
+      10
+    );
+
+
+  if (!title) {
+
+    alert(
+      "Digite o nome da música antes de salvar."
+    );
+
+    return;
+
+  }
+
+
+  if (!lyrics) {
+
+    alert(
+      "Digite a letra da música antes de salvar."
+    );
+
+    return;
+
+  }
+
+
+  const slides =
+    createSlides(
+      lyrics,
+      amount
+    );
+
+
+  try {
+
+    await db
+      .collection("songs")
+      .add({
+
+        userId:
+          currentUser.uid,
+
+        title:
+          title,
+
+        category:
+          category,
+
+        lyrics:
+          lyrics,
+
+        versesPerSlide:
+          amount,
+
+        slides:
+          slides,
+
+        createdAt:
+          firebase.firestore.FieldValue.serverTimestamp()
+
+      });
+
+
+    alert(
+      "🎵 Música salva com sucesso!"
+    );
+
+
+    /*
+      Também coloca a música
+      na apresentação atual.
+    */
+
+    const alreadyExists =
+      presentationSongs.some(
+        song =>
+          song.title === title
+      );
+
+
+    if (!alreadyExists) {
+
+      presentationSongs.push({
+
+        id:
+          createLocalId(),
+
+        title:
+          title,
+
+        category:
+          category,
+
+        slides:
+          slides,
+
+        saved:
+          true,
+
+        createdAt:
+          Date.now()
+
+      });
+
+
+      selectedSongIndex =
+        presentationSongs.length - 1;
+
+
+      renderMusicList();
+
+      selectPresentationSong(
+        selectedSongIndex
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Não foi possível salvar a música:\n\n" +
+      firebaseError(error)
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   BOTÃO SALVAR MÚSICA
+========================================================= */
+
+const saveMusicAction =
+  document.createElement("button");
+
+saveMusicAction.type =
+  "button";
+
+saveMusicAction.textContent =
+  "💾 Salvar música atual";
+
+saveMusicAction.className =
+  "btn primary";
+
+
+saveMusicAction.style.marginTop =
+  "12px";
+
+saveMusicAction.style.width =
+  "100%";
+
+
+/*
+  Coloca o botão dentro
+  da área do usuário.
+*/
+
+userArea.appendChild(
+  saveMusicAction
+);
+
+
+saveMusicAction.addEventListener(
+  "click",
+  saveCurrentSong
+);
+
+
+/* =========================================================
+   CARREGAR MÚSICA SALVA
+========================================================= */
+
+function loadSavedSong(song) {
+
+  if (!song) {
+    return;
+  }
+
+
+  /*
+    Preenche os campos
+    do editor.
+  */
+
+  songTitle.value =
+    song.title || "";
+
+  songCategory.value =
+    song.category || "Outros";
+
+  songLyrics.value =
+    song.lyrics || "";
+
+  versesPerSlide.value =
+    song.versesPerSlide || 2;
+
+
+  /*
+    Cria uma música para
+    a apresentação atual.
+  */
+
+  const music = {
+
+    id:
+      createLocalId(),
+
+    title:
+      song.title,
+
+    category:
+      song.category,
+
+    slides:
+      song.slides || createSlides(
+        song.lyrics || "",
+        song.versesPerSlide || 2
+      ),
+
+    saved:
+      true,
+
+    createdAt:
+      Date.now()
+
+  };
+
+
+  presentationSongs.push(
+    music
+  );
+
+
+  selectedSongIndex =
+    presentationSongs.length - 1;
+
+
+  renderMusicList();
+
+  selectPresentationSong(
+    selectedSongIndex
+  );
+
+
+  /*
+    Fecha o painel para
+    voltar à tela principal.
+  */
+
+  savePanel.classList.add(
+    "hidden"
+  );
+
+}
+
+
+/* =========================================================
+   EXCLUIR MÚSICA SALVA
+========================================================= */
+
+async function deleteSavedSong(id) {
+
+  if (!currentUser) {
+    return;
+  }
+
+
+  const song =
+    savedSongs.find(
+      item =>
+        item.id === id
+    );
+
+
+  if (!song) {
+    return;
+  }
+
+
+  const confirmed =
+    confirm(
+      Excluir permanentemente "${song.title}"?
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    await db
+      .collection("songs")
+      .doc(id)
+      .delete();
+
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Não foi possível excluir a música:\n\n" +
+      firebaseError(error)
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   FILTROS DO REPERTÓRIO
+========================================================= */
+
+filterButtons.forEach(
+  button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        activeFilter =
+          button.dataset.filter;
+
+
+        renderSavedSongs();
+
+      }
+    );
+
+  }
+);
+
+
+/* =========================================================
+   SALVAR A MÚSICA PELO BOTÃO PRINCIPAL
+========================================================= */
+
+function createSaveButtonForEditor() {
+
+  const button =
+    document.createElement("button");
+
+  button.type =
+    "button";
+
+  button.textContent =
+    "💾 Salvar música";
+
+  button.className =
+    "btn secondary";
+
+
+  button.style.minHeight =
+    "43px";
+
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      if (!currentUser) {
+
+        savePanel.classList.remove(
+          "hidden"
+        );
+
+        showAuthMessage(
+          "Entre ou crie uma conta para salvar esta música."
+        );
+
+        return;
+
+      }
+
+
+      saveCurrentSong();
+
+    }
+  );
+
+
+  const editorBottom =
+    document.querySelector(
+      ".editor-bottom"
+    );
+
+
+  editorBottom.appendChild(
+    button
+  );
+
+}
+
+
+/* =========================================================
+   INICIALIZAÇÃO DO BOTÃO
+========================================================= */
+
+createSaveButtonForEditor();
+
+
+/* =========================================================
+   SALVAR AUTOMATICAMENTE A MÚSICA GERADA
+   NA APRESENTAÇÃO
+========================================================= */
+
+function addGeneratedSongToPresentation(
+  title,
+  category,
+  slides
+) {
+
+  const music = {
+
+    id:
+      createLocalId(),
+
+    title:
+      title,
+
+    category:
+      category,
+
+    slides:
+      slides,
+
+    saved:
+      false,
+
+    createdAt:
+      Date.now()
+
+  };
+
+
+  presentationSongs.push(
+    music
+  );
+
+
+  selectedSongIndex =
+    presentationSongs.length - 1;
+
+
+  renderMusicList();
+
+  selectPresentationSong(
+    selectedSongIndex
+  );
+
+}
+
+
+/* =========================================================
+   LIMPAR FORMULÁRIO
+========================================================= */
+
+function clearMusicForm() {
+
+  songTitle.value =
+    "";
+
+  songLyrics.value =
+    "";
+
+}
+
+
+/* =========================================================
+   ATALHO CTRL + ENTER
+========================================================= */
+
+songLyrics.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.ctrlKey &&
+      event.key === "Enter"
+    ) {
+
+      generateBtn.click();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   FECHAR PAINEL AO CLICAR FORA
+========================================================= */
+
+document.addEventListener(
+  "click",
+  event => {
+
+    if (
+      savePanel.classList.contains(
+        "hidden"
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      savePanel.contains(event.target)
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      saveMenuBtn.contains(event.target)
+    ) {
+
+      return;
+
+    }
+
+
+    savePanel.classList.add(
+      "hidden"
+    );
+
+  }
+);
+
+
+/* =========================================================
+   LIMPAR MENSAGEM QUANDO DIGITAR
+========================================================= */
+
+emailInput.addEventListener(
+  "input",
+  clearAuthMessage
+);
+
+passwordInput.addEventListener(
+  "input",
+  clearAuthMessage
+);
+
+
+/* =========================================================
+   ESTADO INICIAL
+========================================================= */
+
+renderMusicList();
+
+renderSavedSongs();
+
+
+console.log(
+  "🎵 Sistema de repertório carregado com sucesso."
+);
    CR
