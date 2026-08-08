@@ -4,113 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Missa Slides - Gerenciador de Músicas</title>
+  <title>Missa Slides - Repertório</title>
 
   <link rel="stylesheet" href="style.css">
 
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-  <!-- =========================
-       LOGIN / CADASTRO
-  ========================== -->
+  <!-- =====================================================
+       APLICAÇÃO PRINCIPAL
+  ====================================================== -->
 
-  <div id="authScreen" class="auth-container">
+  <div id="appScreen" class="app-layout">
 
-    <div class="auth-card">
-
-      <div class="logo-icon">🎵</div>
-
-      <h2>Missa Slides</h2>
-
-      <p>
-        Entre na sua conta para acessar seu repertório
-        e preparar os slides da celebração.
-      </p>
-
-      <form id="authForm">
-
-        <input
-          type="email"
-          id="emailInput"
-          placeholder="Seu e-mail"
-          autocomplete="email"
-          required
-        >
-
-        <div class="password-wrapper">
-
-          <input
-            type="password"
-            id="passwordInput"
-            placeholder="Sua senha (mínimo 6 caracteres)"
-            autocomplete="current-password"
-            required
-          >
-
-          <button
-            type="button"
-            id="togglePasswordBtn"
-            class="toggle-password-btn"
-            title="Mostrar/Ocultar senha"
-          >
-            👁️
-          </button>
-
-        </div>
-
-        <div class="auth-buttons">
-
-          <button
-            type="submit"
-            id="loginBtn"
-            class="btn primary"
-          >
-            Entrar
-          </button>
-
-          <button
-            type="button"
-            id="registerBtn"
-            class="btn secondary"
-          >
-            Criar Conta
-          </button>
-
-        </div>
-
-      </form>
-
-      <p id="authError" class="error-msg"></p>
-
-    </div>
-
-  </div>
-
-
-  <!-- =========================
-       APLICAÇÃO
-  ========================== -->
-
-  <div id="appScreen" class="app-layout hidden">
-
-    <!-- SIDEBAR -->
+    <!-- BARRA LATERAL -->
 
     <aside class="sidebar">
 
       <div class="user-bar">
 
-        <div class="user-info">
-          <span class="user-icon">👤</span>
-          <span id="userEmailDisplay">usuario@email.com</span>
-        </div>
+        <span id="userEmailDisplay">
+          Visitante
+        </span>
 
-        <button id="logoutBtn" class="btn-logout">
+        <button
+          id="logoutBtn"
+          class="btn-logout hidden">
           Sair
         </button>
 
@@ -119,21 +43,20 @@
 
       <div class="sidebar-header">
 
-        <h2>🎵 Repertório da Missa</h2>
+        <h2>
+          Repertório da Missa
+        </h2>
 
         <p>
-          Cadastre músicas e organize-as
-          por momento da celebração.
+          Cadastre músicas e organize seus momentos.
         </p>
 
       </div>
 
 
-      <!-- CADASTRO DE MÚSICA -->
+      <!-- FORMULÁRIO -->
 
       <div class="song-form">
-
-        <h3>Adicionar música</h3>
 
         <input
           type="text"
@@ -141,34 +64,56 @@
           placeholder="Ex: Vem, A Casa é Sua"
         >
 
+
         <label for="songCategorySelect">
           Momento da Missa:
         </label>
 
+
         <select id="songCategorySelect">
 
-          <option value="Entrada">Entrada</option>
-          <option value="Penitencial">Penitencial</option>
-          <option value="Glória">Glória</option>
-          <option value="Salmo">Salmo</option>
-          <option value="Aleluia">Aleluia</option>
-          <option value="Ofertório">Ofertório</option>
-          <option value="Comunhão">Comunhão</option>
-          <option value="Final">Final</option>
-          <option value="Orações">Orações</option>
+          <option value="Entrada">
+            Entrada
+          </option>
+
+          <option value="Penitencial">
+            Penitencial
+          </option>
+
+          <option value="Glória">
+            Glória
+          </option>
+
+          <option value="Salmo">
+            Salmo
+          </option>
+
+          <option value="Aleluia">
+            Aleluia
+          </option>
+
+          <option value="Ofertório">
+            Ofertório
+          </option>
+
+          <option value="Comunhão">
+            Comunhão
+          </option>
+
+          <option value="Final">
+            Final
+          </option>
+
+          <option value="Orações">
+            Orações
+          </option>
 
         </select>
 
 
-        <label for="songLyricsInput">
-          Letra:
-        </label>
-
         <textarea
           id="songLyricsInput"
-          placeholder="Cole a letra da música aqui...
-
-Cada linha será considerada um verso."
+          placeholder="Cole a letra da música aqui..."
         ></textarea>
 
 
@@ -180,11 +125,25 @@ Cada linha será considerada um verso."
 
           <select id="versesPerSlide">
 
-            <option value="2">2 Versos</option>
-            <option value="3">3 Versos</option>
-            <option value="4" selected>4 Versos</option>
-            <option value="5">5 Versos</option>
-            <option value="6">6 Versos</option>
+            <option value="2">
+              2 Versos
+            </option>
+
+            <option value="3">
+              3 Versos
+            </option>
+
+            <option value="4" selected>
+              4 Versos
+            </option>
+
+            <option value="5">
+              5 Versos
+            </option>
+
+            <option value="6">
+              6 Versos
+            </option>
 
           </select>
 
@@ -193,10 +152,20 @@ Cada linha será considerada um verso."
 
         <button
           id="addSongBtn"
-          class="btn primary"
-        >
+          class="btn primary">
+
           ☁️ Salvar Música
+
         </button>
+
+        <p
+          id="saveInfo"
+          class="save-info">
+
+          Você pode usar o site sem criar conta.
+          A conta é necessária apenas para salvar na nuvem.
+
+        </p>
 
       </div>
 
@@ -206,48 +175,69 @@ Cada linha será considerada um verso."
       <div class="category-filters">
 
         <label>
-          Filtrar repertório:
+          Filtrar Repertório:
         </label>
+
 
         <div class="filter-chips">
 
-          <button class="chip active" data-category="Todos">
+          <button
+            class="chip active"
+            data-category="Todos">
             Todos
           </button>
 
-          <button class="chip" data-category="Entrada">
+          <button
+            class="chip"
+            data-category="Entrada">
             Entrada
           </button>
 
-          <button class="chip" data-category="Penitencial">
+          <button
+            class="chip"
+            data-category="Penitencial">
             Penitencial
           </button>
 
-          <button class="chip" data-category="Glória">
+          <button
+            class="chip"
+            data-category="Glória">
             Glória
           </button>
 
-          <button class="chip" data-category="Salmo">
+          <button
+            class="chip"
+            data-category="Salmo">
             Salmo
           </button>
 
-          <button class="chip" data-category="Aleluia">
+          <button
+            class="chip"
+            data-category="Aleluia">
             Aleluia
           </button>
 
-          <button class="chip" data-category="Ofertório">
+          <button
+            class="chip"
+            data-category="Ofertório">
             Ofertório
           </button>
 
-          <button class="chip" data-category="Comunhão">
+          <button
+            class="chip"
+            data-category="Comunhão">
             Comunhão
           </button>
 
-          <button class="chip" data-category="Final">
+          <button
+            class="chip"
+            data-category="Final">
             Final
           </button>
 
-          <button class="chip" data-category="Orações">
+          <button
+            class="chip"
+            data-category="Orações">
             Orações
           </button>
 
@@ -261,11 +251,15 @@ Cada linha será considerada um verso."
       <div class="playlist-section">
 
         <h3>
-          Músicas no banco
+          Músicas
           (<span id="songCount">0</span>)
         </h3>
 
-        <ul id="playlist" class="playlist"></ul>
+
+        <ul
+          id="playlist"
+          class="playlist">
+        </ul>
 
       </div>
 
@@ -277,9 +271,10 @@ Cada linha será considerada um verso."
         <button
           id="startPresentationBtn"
           class="btn accent"
-          disabled
-        >
+          disabled>
+
           📺 Iniciar Apresentação
+
         </button>
 
       </div>
@@ -287,45 +282,46 @@ Cada linha será considerada um verso."
     </aside>
 
 
-    <!-- ÁREA PRINCIPAL -->
+    <!-- =====================================================
+         ÁREA PRINCIPAL
+    ====================================================== -->
 
     <main class="main-content">
 
       <header class="main-header">
 
-        <div>
+        <h1 id="selectedSongTitle">
 
-          <span class="section-label">
-            REPERTÓRIO
-          </span>
+          Selecione ou adicione uma música
 
-          <h1 id="selectedSongTitle">
-            Selecione ou adicione uma música
-          </h1>
+        </h1>
 
-          <p id="selectedSongSubtitle">
-            Os slides da música escolhida aparecerão aqui.
-          </p>
 
-        </div>
+        <p id="selectedSongSubtitle">
+
+          Os slides da música escolhida aparecerão aqui.
+
+        </p>
 
       </header>
 
 
       <div
         id="slidesOutput"
-        class="slides-container"
-      >
+        class="slides-container">
 
         <div class="empty-state">
 
-          <span class="empty-icon">🎵</span>
+          <span>
+            🎵
+          </span>
 
-          <h3>Nenhuma música selecionada</h3>
+          <h3>
+            Nenhuma música selecionada
+          </h3>
 
           <p>
-            Adicione uma música ou selecione uma música
-            do seu repertório no menu à esquerda.
+            Adicione uma música ou selecione uma do repertório.
           </p>
 
         </div>
@@ -337,14 +333,111 @@ Cada linha será considerada um verso."
   </div>
 
 
-  <!-- =========================
+  <!-- =====================================================
+       MODAL DE LOGIN
+  ====================================================== -->
+
+  <div
+    id="authModal"
+    class="auth-modal hidden">
+
+    <div class="auth-card">
+
+      <button
+        id="closeAuthBtn"
+        class="auth-close">
+
+        ×
+
+      </button>
+
+
+      <h2>
+        Salvar na Nuvem
+      </h2>
+
+
+      <p>
+        Para salvar suas músicas e acessá-las depois,
+        entre ou crie uma conta gratuita.
+      </p>
+
+
+      <form id="authForm">
+
+        <input
+          type="email"
+          id="emailInput"
+          placeholder="Seu e-mail"
+          required
+        >
+
+
+        <div class="password-wrapper">
+
+          <input
+            type="password"
+            id="passwordInput"
+            placeholder="Senha (mínimo 6 caracteres)"
+            required
+          >
+
+
+          <button
+            type="button"
+            id="togglePasswordBtn"
+            class="toggle-password-btn">
+
+            👁️
+
+          </button>
+
+        </div>
+
+
+        <div class="auth-buttons">
+
+          <button
+            type="submit"
+            id="loginBtn"
+            class="btn primary">
+
+            Entrar
+
+          </button>
+
+
+          <button
+            type="button"
+            id="registerBtn"
+            class="btn secondary">
+
+            Criar Conta
+
+          </button>
+
+        </div>
+
+      </form>
+
+
+      <p
+        id="authError"
+        class="error-msg">
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
        MODAL DE APRESENTAÇÃO
-  ========================== -->
+  ====================================================== -->
 
   <div
     id="presentationModal"
-    class="presentation-modal hidden"
-  >
+    class="presentation-modal hidden">
 
     <div class="presentation-header">
 
@@ -352,16 +445,19 @@ Cada linha será considerada um verso."
 
         <span
           id="currentSongBadge"
-          class="badge"
-        >
-          Entrada - Música 1/1
+          class="badge">
+
+          Música 1/1
+
         </span>
+
 
         <span
           id="currentSongTitle"
-          class="song-title-display"
-        >
-          Título da Música
+          class="song-title-display">
+
+          Título
+
         </span>
 
       </div>
@@ -370,18 +466,20 @@ Cada linha será considerada um verso."
       <div class="presentation-controls-top">
 
         <span class="hint-key">
-          ← → Slides
-          |
-          ↑ ↓ Músicas
-          |
-          ESC Sair
+
+          ⬅️ ➡️ Slides |
+          ⬆️ ⬇️ Músicas |
+          Esc Sair
+
         </span>
+
 
         <button
           id="closePresentBtn"
-          class="close-btn"
-        >
+          class="close-btn">
+
           × Sair
+
         </button>
 
       </div>
@@ -393,8 +491,8 @@ Cada linha será considerada um verso."
 
       <div
         id="presentationText"
-        class="presentation-text"
-      ></div>
+        class="presentation-text">
+      </div>
 
     </div>
 
@@ -403,23 +501,28 @@ Cada linha será considerada um verso."
 
       <button
         id="prevSlideBtn"
-        class="nav-btn"
-      >
+        class="nav-btn">
+
         ◀️ Slide Anterior
+
       </button>
+
 
       <span
         id="slideCounter"
-        class="slide-counter"
-      >
+        class="slide-counter">
+
         Slide 1 / 1
+
       </span>
+
 
       <button
         id="nextSlideBtn"
-        class="nav-btn"
-      >
+        class="nav-btn">
+
         Próximo Slide ▶️
+
       </button>
 
     </div>
@@ -427,11 +530,9 @@ Cada linha será considerada um verso."
   </div>
 
 
-  <script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore-compat.js"></script>
+  <!-- JAVASCRIPT DO PROJETO -->
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 
 </body>
 </html>
