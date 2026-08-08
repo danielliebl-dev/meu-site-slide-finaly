@@ -2,7 +2,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
@@ -27,178 +27,184 @@ button {
 }
 
 
-/* =========================================================
-   APLICAÇÃO
-========================================================= */
+/* =========================
+   TOPO
+========================= */
 
-.app-layout {
-  display: flex;
-  min-height: 100vh;
-}
-
-
-/* =========================================================
-   BARRA LATERAL
-========================================================= */
-
-.sidebar {
-  width: 400px;
-  min-width: 400px;
-  height: 100vh;
-
+.topbar {
+  height: 78px;
   background: #1e293b;
-  border-right: 1px solid #334155;
-
-  padding: 20px;
+  border-bottom: 1px solid #334155;
 
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
 
-  overflow-y: auto;
+  padding: 0 28px;
+
   position: sticky;
   top: 0;
+  z-index: 1000;
 }
 
-
-/* =========================================================
-   USUÁRIO
-========================================================= */
-
-.user-bar {
+.brand {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-
-  background: #0f172a;
-
-  padding: 9px 12px;
-
-  border-radius: 8px;
-
-  font-size: 0.85rem;
-  color: #cbd5e1;
+  gap: 12px;
 }
 
-.btn-logout {
-  background: #ef4444;
-  color: white;
-
-  border: none;
-  border-radius: 6px;
-
-  padding: 5px 10px;
-
-  font-size: 0.75rem;
-  font-weight: bold;
+.brand-icon {
+  font-size: 30px;
 }
 
-
-/* =========================================================
-   CABEÇALHO
-========================================================= */
-
-.sidebar-header h2 {
+.brand h1 {
   color: #38bdf8;
-  font-size: 1.3rem;
-  margin-bottom: 5px;
+  font-size: 1.35rem;
 }
 
-.sidebar-header p {
+.brand p {
   color: #94a3b8;
-  font-size: 0.85rem;
-}
-
-
-/* =========================================================
-   FORMULÁRIO
-========================================================= */
-
-.song-form {
-  background: #0f172a;
-
-  border: 1px solid #334155;
-  border-radius: 12px;
-
-  padding: 14px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.song-form label {
-  color: #cbd5e1;
   font-size: 0.8rem;
+  margin-top: 3px;
 }
 
-.song-form input,
-.song-form select,
-.song-form textarea {
-  width: 100%;
-
-  background: #1e293b;
-  color: #f8fafc;
-
-  border: 1px solid #475569;
-  border-radius: 7px;
-
-  padding: 9px 11px;
-
-  outline: none;
-}
-
-.song-form input:focus,
-.song-form select:focus,
-.song-form textarea:focus {
-  border-color: #38bdf8;
-}
-
-.song-form textarea {
-  height: 120px;
-  resize: vertical;
-}
-
-.form-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.save-info {
-  color: #64748b;
-  font-size: 0.72rem;
-  line-height: 1.4;
-}
-
-
-/* =========================================================
-   BOTÕES
-========================================================= */
-
-.btn {
-  width: 100%;
-
-  padding: 10px;
-
-  border: none;
-  border-radius: 8px;
-
+.top-save-btn {
+  background: #0284c7;
   color: white;
 
-  font-size: 0.9rem;
-  font-weight: 600;
+  border: none;
+  border-radius: 9px;
+
+  padding: 11px 17px;
+
+  font-weight: bold;
 
   transition: 0.2s;
 }
 
-.btn:hover {
-  filter: brightness(1.1);
+.top-save-btn:hover {
+  background: #0369a1;
 }
 
-.btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+
+/* =========================
+   PAINEL SALVAR MÚSICA
+========================= */
+
+.save-panel {
+  position: fixed;
+
+  top: 78px;
+  right: 0;
+
+  width: 390px;
+  max-width: 95vw;
+
+  height: calc(100vh - 78px);
+
+  background: #1e293b;
+
+  border-left: 1px solid #334155;
+
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.35);
+
+  padding: 22px;
+
+  overflow-y: auto;
+
+  z-index: 2000;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  margin-bottom: 20px;
+}
+
+.panel-header h2 {
+  color: #38bdf8;
+  font-size: 1.25rem;
+}
+
+.panel-header p {
+  color: #94a3b8;
+  font-size: 0.78rem;
+  margin-top: 4px;
+}
+
+.close-panel-btn {
+  background: transparent;
+  border: none;
+
+  color: #94a3b8;
+
+  font-size: 28px;
+  line-height: 1;
+}
+
+.close-panel-btn:hover {
+  color: #ef4444;
+}
+
+.save-panel h3 {
+  color: #e2e8f0;
+  font-size: 0.95rem;
+
+  margin-bottom: 9px;
+}
+
+.panel-info {
+  color: #94a3b8;
+
+  font-size: 0.78rem;
+  line-height: 1.5;
+
+  margin-bottom: 14px;
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+#loginArea input {
+  width: 100%;
+
+  background: #0f172a;
+  color: white;
+
+  border: 1px solid #475569;
+  border-radius: 8px;
+
+  padding: 10px 12px;
+
+  margin-bottom: 9px;
+
+  outline: none;
+}
+
+#loginArea input:focus {
+  border-color: #38bdf8;
+}
+
+.login-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+
+  padding: 10px;
+
+  color: white;
+
+  font-weight: bold;
+
+  flex: 1;
 }
 
 .btn.primary {
@@ -209,32 +215,148 @@ button {
   background: #475569;
 }
 
-.btn.accent {
-  background: #10b981;
+.btn.danger {
+  background: #dc2626;
+  width: 100%;
 }
 
+.btn:hover {
+  filter: brightness(1.12);
+}
 
-/* =========================================================
-   FILTROS
-========================================================= */
-
-.category-filters label {
-  display: block;
-
-  margin-bottom: 7px;
-
-  color: #94a3b8;
+.auth-message {
+  color: #f87171;
 
   font-size: 0.8rem;
+
+  line-height: 1.4;
+
+  margin-top: 10px;
 }
 
-.filter-chips {
+
+/* =========================
+   USUÁRIO LOGADO
+========================= */
+
+.logged-user {
+  background: #0f172a;
+
+  border: 1px solid #334155;
+  border-radius: 9px;
+
+  padding: 12px;
+
+  margin-bottom: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.logged-user span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.logged-user strong {
+  color: #38bdf8;
+
+  font-size: 0.85rem;
+
+  word-break: break-all;
+}
+
+
+/* =========================
+   REPERTÓRIO SALVO
+========================= */
+
+.saved-section,
+.filter-section {
+  border-top: 1px solid #334155;
+
+  margin-top: 22px;
+
+  padding-top: 18px;
+}
+
+.saved-songs {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.saved-song {
+  background: #0f172a;
+
+  border: 1px solid #334155;
+
+  border-radius: 8px;
+
+  padding: 9px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.saved-song-info {
+  min-width: 0;
+}
+
+.saved-song-title {
+  color: #f8fafc;
+
+  font-size: 0.82rem;
+  font-weight: bold;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-song-category {
+  color: #38bdf8;
+
+  font-size: 0.7rem;
+
+  margin-top: 3px;
+}
+
+.saved-song button {
+  background: transparent;
+
+  border: none;
+
+  color: #ef4444;
+
+  font-size: 15px;
+}
+
+.empty-message {
+  color: #64748b;
+
+  font-size: 0.78rem;
+
+  line-height: 1.5;
+}
+
+
+/* =========================
+   FILTROS
+========================= */
+
+.filter-buttons {
   display: flex;
   flex-wrap: wrap;
+
   gap: 6px;
 }
 
-.chip {
+.filter-btn {
   background: #0f172a;
 
   color: #cbd5e1;
@@ -243,176 +365,322 @@ button {
 
   border-radius: 20px;
 
-  padding: 5px 10px;
+  padding: 6px 10px;
 
-  font-size: 0.75rem;
-
-  transition: 0.2s;
+  font-size: 0.72rem;
 }
 
-.chip:hover,
-.chip.active {
+.filter-btn:hover,
+.filter-btn.active {
   background: #0284c7;
+
   color: white;
+
   border-color: #38bdf8;
 }
 
 
-/* =========================================================
-   PLAYLIST
-========================================================= */
+/* =========================
+   ÁREA PRINCIPAL
+========================= */
 
-.playlist-section {
-  flex: 1;
-  min-height: 100px;
+.main-container {
+  width: 100%;
+  max-width: 1300px;
+
+  margin: auto;
+
+  padding: 30px;
 }
 
-.playlist-section h3 {
-  color: #cbd5e1;
+.music-editor,
+.presentation-list-section,
+.slides-section {
+  background: #1e293b;
 
-  font-size: 0.95rem;
+  border: 1px solid #334155;
 
-  margin-bottom: 8px;
+  border-radius: 14px;
+
+  padding: 22px;
+
+  margin-bottom: 20px;
 }
 
-.playlist {
-  list-style: none;
-
+.section-title {
   display: flex;
-  flex-direction: column;
 
-  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
 
-  max-height: 260px;
+  gap: 15px;
 
-  overflow-y: auto;
+  margin-bottom: 20px;
 }
 
-.playlist-item {
+.section-title h2 {
+  color: #38bdf8;
+
+  font-size: 1.2rem;
+}
+
+.section-title p {
+  color: #94a3b8;
+
+  font-size: 0.8rem;
+
+  margin-top: 5px;
+}
+
+.user-status,
+#musicCount {
   background: #0f172a;
 
   border: 1px solid #334155;
 
+  color: #94a3b8;
+
+  border-radius: 20px;
+
+  padding: 6px 11px;
+
+  font-size: 0.72rem;
+
+  white-space: nowrap;
+}
+
+
+/* =========================
+   CAMPOS
+========================= */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns: 2fr 1fr;
+
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.field label {
+  color: #cbd5e1;
+
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+
+  background: #0f172a;
+
+  color: #f8fafc;
+
+  border: 1px solid #475569;
+
   border-radius: 8px;
 
-  padding: 8px 10px;
+  padding: 11px;
 
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: #38bdf8;
+}
+
+.field textarea {
+  height: 190px;
+
+  resize: vertical;
+
+  line-height: 1.5;
+}
+
+
+/* =========================
+   BOTÃO GERAR
+========================= */
+
+.editor-bottom {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+
+  align-items: flex-end;
+
+  gap: 15px;
+
+  margin-top: 15px;
+}
+
+.verses-field {
+  width: 260px;
+}
+
+.generate-btn {
+  flex: 1;
+
+  min-height: 43px;
+
+  background: #10b981;
+
+  color: white;
+
+  border: none;
+
+  border-radius: 8px;
+
+  font-weight: bold;
 
   transition: 0.2s;
 }
 
-.playlist-item:hover {
+.generate-btn:hover {
+  background: #059669;
+}
+
+
+/* =========================
+   LISTA DE MÚSICAS
+========================= */
+
+.music-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+.music-item {
+  background: #0f172a;
+
+  border: 1px solid #334155;
+
+  border-radius: 10px;
+
+  padding: 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.music-item:hover {
   border-color: #38bdf8;
 }
 
-.playlist-item.active {
-  background: #0284c7;
+.music-item.active {
   border-color: #38bdf8;
+
+  background: #172554;
 }
 
-.playlist-main {
+.music-item-info {
   min-width: 0;
 }
 
-.playlist-item-title {
-  display: inline-block;
+.music-item-title {
+  color: #f8fafc;
 
-  max-width: 210px;
+  font-size: 0.9rem;
 
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
-
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: bold;
 }
 
-.playlist-item-tag {
-  display: inline-block;
+.music-item-meta {
+  color: #94a3b8;
 
-  margin-left: 6px;
+  font-size: 0.72rem;
 
-  background: #334155;
+  margin-top: 4px;
+}
 
-  color: #38bdf8;
+.music-item-actions {
+  display: flex;
 
-  padding: 2px 6px;
+  align-items: center;
 
-  border-radius: 4px;
+  gap: 6px;
+}
+
+.music-item-actions button {
+  background: #1e293b;
+
+  color: #cbd5e1;
+
+  border: 1px solid #334155;
+
+  border-radius: 6px;
+
+  padding: 6px 8px;
+
+  font-size: 0.72rem;
+}
+
+.music-item-actions button:hover {
+  border-color: #38bdf8;
+}
+
+.music-item-actions .delete-music {
+  color: #f87171;
+}
+
+
+/* =========================
+   SEPARADOR ENTRE MÚSICAS
+========================= */
+
+.music-separator {
+  height: 35px;
+
+  margin: 3px 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  color: #64748b;
 
   font-size: 0.7rem;
 }
 
-.icon-btn {
-  background: transparent;
+.music-separator::before,
+.music-separator::after {
+  content: "";
 
-  border: none;
+  height: 1px;
 
-  color: #94a3b8;
+  background: #334155;
 
-  padding: 5px;
-}
-
-.icon-btn:hover {
-  color: #ef4444;
-}
-
-.playlist-empty {
-  color: #64748b;
-
-  font-size: 0.8rem;
-
-  padding: 10px;
-}
-
-
-/* =========================================================
-   AÇÕES
-========================================================= */
-
-.global-actions {
-  margin-top: auto;
-}
-
-
-/* =========================================================
-   ÁREA PRINCIPAL
-========================================================= */
-
-.main-content {
   flex: 1;
-
-  padding: 32px;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 20px;
-
-  min-width: 0;
-}
-
-.main-header h1 {
-  color: #38bdf8;
-
-  font-size: 1.8rem;
-
-  margin-bottom: 5px;
-}
-
-.main-header p {
-  color: #94a3b8;
 }
 
 
-/* =========================================================
+/* =========================
    SLIDES
-========================================================= */
+========================= */
 
 .slides-container {
   display: flex;
@@ -422,48 +690,20 @@ button {
   gap: 12px;
 }
 
-.empty-state {
-  background: #1e293b;
-
-  border: 1px dashed #334155;
-
-  border-radius: 12px;
-
-  padding: 60px 20px;
-
-  text-align: center;
-
-  color: #64748b;
-}
-
-.empty-state span {
-  display: block;
-
-  font-size: 2.5rem;
-
-  margin-bottom: 12px;
-}
-
-.empty-state h3 {
-  color: #94a3b8;
-
-  margin-bottom: 8px;
-}
-
 .slide-box {
-  background: #1e293b;
+  background: #0f172a;
 
   border-left: 4px solid #38bdf8;
 
-  border-radius: 8px;
+  border-radius: 9px;
 
-  padding: 16px;
+  padding: 18px;
 }
 
-.slide-header {
+.slide-number {
   color: #38bdf8;
 
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 
   font-weight: bold;
 
@@ -471,161 +711,71 @@ button {
 }
 
 .slide-content {
-  color: #f8fafc;
+  color: white;
 
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 
   line-height: 1.6;
 
   white-space: pre-line;
 }
 
+.empty-state {
+  background: #0f172a;
 
-/* =========================================================
-   MODAL DE LOGIN
-========================================================= */
+  border: 1px dashed #334155;
 
-.auth-modal {
-  position: fixed;
+  border-radius: 10px;
 
-  inset: 0;
+  padding: 45px 20px;
 
-  z-index: 5000;
-
-  background: rgba(0, 0, 0, 0.75);
-
-  display: flex;
-
-  justify-content: center;
-  align-items: center;
-
-  padding: 20px;
+  text-align: center;
 }
 
-.auth-card {
-  position: relative;
+.empty-state span {
+  display: block;
 
-  width: 100%;
-
-  max-width: 400px;
-
-  background: #1e293b;
-
-  border: 1px solid #334155;
-
-  border-radius: 16px;
-
-  padding: 30px;
-
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-}
-
-.auth-card h2 {
-  color: #38bdf8;
+  font-size: 2rem;
 
   margin-bottom: 8px;
 }
 
-.auth-card > p {
+.empty-state h3 {
   color: #94a3b8;
 
-  font-size: 0.9rem;
-
-  line-height: 1.5;
-
-  margin-bottom: 20px;
+  margin-bottom: 6px;
 }
 
-.auth-card input[type="email"],
-.auth-card input[type="password"],
-.auth-card input[type="text"] {
-  width: 100%;
+.empty-state p {
+  color: #64748b;
 
-  background: #0f172a;
+  font-size: 0.8rem;
+}
+
+
+/* =========================
+   APRESENTAÇÃO
+========================= */
+
+.presentation-btn {
+  background: #0284c7;
 
   color: white;
 
-  border: 1px solid #334155;
+  border: none;
 
   border-radius: 8px;
 
-  padding: 12px;
+  padding: 10px 15px;
 
-  outline: none;
-
-  margin-bottom: 12px;
+  font-weight: bold;
 }
 
-.password-wrapper {
-  position: relative;
+.presentation-btn:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
 }
-
-.password-wrapper input {
-  padding-right: 45px;
-}
-
-.toggle-password-btn {
-  position: absolute;
-
-  right: 8px;
-  top: 7px;
-
-  background: transparent;
-
-  border: none;
-
-  color: #94a3b8;
-
-  padding: 5px;
-}
-
-.toggle-password-btn:hover {
-  color: #38bdf8;
-}
-
-.auth-buttons {
-  display: flex;
-
-  gap: 10px;
-
-  margin-top: 5px;
-}
-
-.auth-close {
-  position: absolute;
-
-  right: 12px;
-  top: 10px;
-
-  background: transparent;
-
-  border: none;
-
-  color: #94a3b8;
-
-  font-size: 1.7rem;
-
-  line-height: 1;
-}
-
-.auth-close:hover {
-  color: #ef4444;
-}
-
-.error-msg {
-  color: #ef4444 !important;
-
-  font-size: 0.85rem !important;
-
-  margin-top: 12px;
-
-  margin-bottom: 0 !important;
-}
-
-
-/* =========================================================
-   APRESENTAÇÃO
-========================================================= */
 
 .presentation-modal {
   position: fixed;
@@ -634,9 +784,7 @@ button {
 
   z-index: 9999;
 
-  background: #000;
-
-  color: white;
+  background: black;
 
   display: flex;
 
@@ -644,124 +792,64 @@ button {
 
   justify-content: space-between;
 
-  padding: 24px 40px;
+  padding: 25px;
 }
 
-.presentation-header {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 20px;
-}
-
-.song-indicator {
-  display: flex;
-
-  align-items: center;
-
-  min-width: 0;
-}
-
-.badge {
-  background: #0284c7;
-
-  color: white;
-
-  padding: 5px 12px;
-
-  border-radius: 20px;
-
-  font-size: 0.8rem;
-
-  font-weight: bold;
-
-  white-space: nowrap;
-}
-
-.song-title-display {
-  color: #38bdf8;
-
-  font-size: 1.2rem;
-
-  font-weight: 600;
-
-  margin-left: 10px;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
-}
-
-.presentation-controls-top {
-  display: flex;
-
-  align-items: center;
-
-  gap: 15px;
-}
-
-.hint-key {
-  color: #64748b;
-
-  font-size: 0.8rem;
-}
-
-.close-btn {
-  background: #1e293b;
-
-  color: #ef4444;
-
-  border: 1px solid #334155;
-
-  border-radius: 8px;
-
-  padding: 8px 15px;
-}
-
-.presentation-body {
+.presentation-content {
   flex: 1;
 
   display: flex;
 
-  align-items: center;
+  flex-direction: column;
 
   justify-content: center;
+
+  align-items: center;
 
   text-align: center;
 
   overflow: hidden;
 }
 
-.presentation-text {
-  max-width: 95%;
+.presentation-song-name {
+  color: #38bdf8;
 
+  font-size: 1rem;
+
+  margin-bottom: 25px;
+}
+
+.presentation-text {
   color: white;
 
-  font-size: clamp(2rem, 5.5vw, 5rem);
+  font-size: clamp(2rem, 6vw, 5.5rem);
 
-  font-weight: 700;
+  font-weight: bold;
 
   line-height: 1.4;
 
   white-space: pre-line;
+
+  max-width: 95%;
 }
 
-.presentation-footer {
+.presentation-counter {
+  color: #64748b;
+
+  margin-top: 25px;
+
+  font-size: 0.8rem;
+}
+
+.presentation-controls {
   display: flex;
 
   justify-content: center;
 
-  align-items: center;
-
-  gap: 24px;
+  gap: 10px;
 }
 
-.nav-btn {
+.presentation-controls button {
   background: #1e293b;
 
   color: white;
@@ -770,73 +858,88 @@ button {
 
   border-radius: 8px;
 
-  padding: 10px 20px;
+  padding: 9px 15px;
 }
 
-.nav-btn:hover {
+.presentation-controls button:hover {
   border-color: #38bdf8;
 }
 
-.slide-counter {
-  color: #94a3b8;
 
-  min-width: 90px;
+/* =========================
+   TELA PRETA ENTRE MÚSICAS
+========================= */
 
-  text-align: center;
+.presentation-modal.black-screen .presentation-content {
+  background: black;
+}
+
+.presentation-modal.black-screen
+.presentation-song-name,
+.presentation-modal.black-screen
+.presentation-counter {
+  visibility: hidden;
 }
 
 
-/* =========================================================
+/* =========================
    RESPONSIVIDADE
-========================================================= */
+========================= */
 
-@media (max-width: 900px) {
+@media (max-width: 800px) {
 
-  .app-layout {
-    flex-direction: column;
+  .topbar {
+    padding: 0 15px;
   }
 
-  .sidebar {
-    width: 100%;
-    min-width: 0;
-
-    height: auto;
-
-    position: relative;
+  .brand h1 {
+    font-size: 1rem;
   }
 
-  .main-content {
-    padding: 20px;
+  .brand p {
+    display: none;
   }
 
-  .playlist {
-    max-height: 220px;
-  }
-
-  .presentation-modal {
+  .main-container {
     padding: 15px;
   }
 
-  .presentation-header {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-bottom {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .presentation-controls-top {
-    justify-content: space-between;
+  .verses-field {
+    width: 100%;
   }
 
-  .hint-key {
-    display: none;
+  .section-title {
+    align-items: flex-start;
+
+    flex-direction: column;
   }
 
-  .presentation-footer {
-    gap: 8px;
+  .save-panel {
+    width: 100%;
+    max-width: 100%;
   }
 
-  .nav-btn {
-    padding: 8px 10px;
-    font-size: 0.8rem;
+  .music-item {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .music-item-actions {
+    width: 100%;
+  }
+
+  .music-item-actions button {
+    flex: 1;
   }
 
 }
@@ -844,20 +947,30 @@ button {
 
 @media (max-width: 500px) {
 
-  .auth-buttons {
-    flex-direction: column;
+  .topbar {
+    height: 68px;
   }
 
-  .main-header h1 {
-    font-size: 1.4rem;
+  .save-panel {
+    top: 68px;
+
+    height: calc(100vh - 68px);
   }
 
-  .presentation-text {
-    font-size: clamp(1.8rem, 8vw, 3rem);
+  .top-save-btn {
+    padding: 9px 10px;
+
+    font-size: 0.75rem;
   }
 
-  .presentation-footer {
-    flex-wrap: wrap;
+  .brand-icon {
+    font-size: 22px;
+  }
+
+  .music-editor,
+  .presentation-list-section,
+  .slides-section {
+    padding: 15px;
   }
 
 }
