@@ -746,17 +746,10 @@ generateBtn.addEventListener(
     renderSelectedSong();
 
     /*
-     * Se o usuário estiver conectado,
-     * oferecemos salvar automaticamente.
-     */
-
-    if (currentUser) {
-
-      saveSongToFirestore(
-        song
-      );
-
-    }
+ * A música não é salva automaticamente.
+ * Ela só será salva permanentemente quando
+ * o usuário clicar em "Salvar Música".
+ */
 
     songTitle.value = "";
     songLyrics.value = "";
