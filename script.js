@@ -1,119 +1,96 @@
 /* =========================================================
-   FIREBASE
-========================================================= */
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDIQ8JtxKJrsZQedoVUig5bUmxc6u3wvAQ",
-  authDomain: "my-project-slide-6d2cd.firebaseapp.com",
-  projectId: "my-project-slide-6d2cd",
-  storageBucket: "my-project-slide-6d2cd.firebasestorage.app",
-  messagingSenderId: "722407689614",
-  appId: "1:722407689614:web:97f7a947dac7a1648fe8df",
-  measurementId: "G-8L6RL89M41"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
+   REPERTÓRIO DE SLIDES
+   JavaScript principal
+   ========================================================= */
 
 
 /* =========================================================
-   ESTADO
-========================================================= */
+   1. CONFIGURAÇÃO DO FIREBASE
+   =========================================================
+
+   COLOQUE AQUI A CONFIGURAÇÃO DO SEU PROJETO FIREBASE.
+
+   Exemplo:
+
+   const firebaseConfig = {
+     apiKey: "SUA_API_KEY",
+     authDomain: "SEU_PROJETO.firebaseapp.com",
+     projectId: "SEU_PROJETO",
+     storageBucket: "SEU_PROJETO.firebasestorage.app",
+     messagingSenderId: "SEU_ID",
+     appId: "SEU_APP_ID"
+   };
+
+   ========================================================= */
+
+const firebaseConfig = {
+  apiKey: "COLOQUE_SUA_API_KEY",
+  authDomain: "COLOQUE_SEU_AUTH_DOMAIN",
+  projectId: "COLOQUE_SEU_PROJECT_ID",
+  storageBucket: "COLOQUE_SEU_STORAGE_BUCKET",
+  messagingSenderId: "COLOQUE_SEU_MESSAGING_SENDER_ID",
+  appId: "COLOQUE_SEU_APP_ID"
+};
+
+
+/* =========================================================
+   2. INICIALIZAÇÃO
+   ========================================================= */
+
+let auth = null;
+let db = null;
 
 let currentUser = null;
 
-let savedSongs = [];
-
 let presentationSongs = [];
+let selectedSong = null;
 
-let selectedSongIndex = -1;
+let currentFilter = "Todos";
 
-let currentSlideIndex = 0;
-
-let showingBlackScreen = false;
-
-let activeFilter = "Todos";
-
-let unsubscribeSongs = null;
+let presentationSlides = [];
+let currentPresentationSlide = 0;
 
 
 /* =========================================================
-   ELEMENTOS
-========================================================= */
+   3. ELEMENTOS DO HTML
+   ========================================================= */
 
-const saveMenuBtn =
-  document.getElementById("saveMenuBtn");
+const saveMenuBtn = document.getElementById("saveMenuBtn");
+const savePanel = document.getElementById("savePanel");
+const closeSavePanelBtn = document.getElementById("closeSavePanelBtn");
 
-const savePanel =
-  document.getElementById("savePanel");
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
 
-const closeSavePanelBtn =
-  document.getElementById("closeSavePanelBtn");
+const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-const emailInput =
-  document.getElementById("emailInput");
+const loginArea = document.getElementById("loginArea");
+const userArea = document.getElementById("userArea");
 
-const passwordInput =
-  document.getElementById("passwordInput");
+const userEmail = document.getElementById("userEmail");
+const authMessage = document.getElementById("authMessage");
 
-const loginBtn =
-  document.getElementById("loginBtn");
+const currentUserStatus = document.getElementById("currentUserStatus");
 
-const registerBtn =
-  document.getElementById("registerBtn");
+const savedSongs = document.getElementById("savedSongs");
 
-const logoutBtn =
-  document.getElementById("logoutBtn");
+const songTitle = document.getElementById("songTitle");
+const songCategory = document.getElementById("songCategory");
+const songLyrics = document.getElementById("songLyrics");
 
-const loginArea =
-  document.getElementById("loginArea");
+const versesPerSlide = document.getElementById("versesPerSlide");
 
-const userArea =
-  document.getElementById("userArea");
+const generateBtn = document.getElementById("generateBtn");
 
-const userEmail =
-  document.getElementById("userEmail");
+const musicList = document.getElementById("musicList");
+const musicCount = document.getElementById("musicCount");
 
-const authMessage =
-  document.getElementById("authMessage");
+const selectedSongTitle = document.getElementById("selectedSongTitle");
+const selectedSongInfo = document.getElementById("selectedSongInfo");
 
-const savedSongsContainer =
-  document.getElementById("savedSongs");
-
-const currentUserStatus =
-  document.getElementById("currentUserStatus");
-
-const songTitle =
-  document.getElementById("songTitle");
-
-const songCategory =
-  document.getElementById("songCategory");
-
-const songLyrics =
-  document.getElementById("songLyrics");
-
-const versesPerSlide =
-  document.getElementById("versesPerSlide");
-
-const generateBtn =
-  document.getElementById("generateBtn");
-
-const musicList =
-  document.getElementById("musicList");
-
-const musicCount =
-  document.getElementById("musicCount");
-
-const selectedSongTitle =
-  document.getElementById("selectedSongTitle");
-
-const selectedSongInfo =
-  document.getElementById("selectedSongInfo");
-
-const slidesContainer =
-  document.getElementById("slidesContainer");
+const slidesContainer = document.getElementById("slidesContainer");
 
 const startPresentationBtn =
   document.getElementById("startPresentationBtn");
@@ -141,312 +118,693 @@ const closePresentationBtn =
 
 
 /* =========================================================
-   ABRIR / FECHAR PAINEL
-========================================================= */
+   4. VERIFICAÇÃO DOS ELEMENTOS
+   ========================================================= */
+
+function checkElements() {
+
+  const requiredElements = [
+    saveMenuBtn,
+    savePanel,
+    closeSavePanelBtn,
+    emailInput,
+    passwordInput,
+    loginBtn,
+    registerBtn,
+    logoutBtn,
+    loginArea,
+    userArea,
+    userEmail,
+    authMessage,
+    currentUserStatus,
+    savedSongs,
+    songTitle,
+    songCategory,
+    songLyrics,
+    versesPerSlide,
+    generateBtn,
+    musicList,
+    musicCount,
+    selectedSongTitle,
+    selectedSongInfo,
+    slidesContainer,
+    startPresentationBtn,
+    presentationModal,
+    presentationSongName,
+    presentationText,
+    presentationCounter,
+    previousSlideBtn,
+    nextSlideBtn,
+    closePresentationBtn
+  ];
+
+  const missing = requiredElements.some(
+    element => !element
+  );
+
+  if (missing) {
+
+    console.error(
+      "Um ou mais elementos do HTML não foram encontrados."
+    );
+
+    return false;
+  }
+
+  return true;
+}
+
+
+/* =========================================================
+   5. FIREBASE
+   ========================================================= */
+
+function initializeFirebase() {
+
+  try {
+
+    if (
+      firebaseConfig.apiKey === "COLOQUE_SUA_API_KEY" ||
+      firebaseConfig.projectId === "COLOQUE_SEU_PROJECT_ID"
+    ) {
+
+      console.warn(
+        "A configuração do Firebase ainda não foi preenchida."
+      );
+
+      showAuthMessage(
+        "Configure o Firebase no script.js para usar contas e salvar músicas.",
+        "error"
+      );
+
+      return false;
+    }
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    auth = firebase.auth();
+    db = firebase.firestore();
+
+    auth.onAuthStateChanged(handleAuthStateChanged);
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao inicializar o Firebase:",
+      error
+    );
+
+    showAuthMessage(
+      "Não foi possível conectar ao Firebase.",
+      "error"
+    );
+
+    return false;
+  }
+}
+
+
+/* =========================================================
+   6. MENSAGENS
+   ========================================================= */
+
+function showAuthMessage(message, type = "info") {
+
+  if (!authMessage) {
+    return;
+  }
+
+  authMessage.textContent = message;
+
+  authMessage.classList.remove(
+    "success",
+    "error",
+    "info"
+  );
+
+  authMessage.classList.add(type);
+}
+
+
+/* =========================================================
+   7. ABRIR / FECHAR MENU DE SALVAR
+   ========================================================= */
+
+function openSavePanel() {
+
+  savePanel.classList.remove("hidden");
+
+}
+
+
+function closeSavePanel() {
+
+  savePanel.classList.add("hidden");
+
+}
+
 
 saveMenuBtn.addEventListener(
   "click",
-  () => {
-
-    savePanel.classList.toggle(
-      "hidden"
-    );
-
-  }
+  openSavePanel
 );
 
 
 closeSavePanelBtn.addEventListener(
   "click",
-  () => {
-
-    savePanel.classList.add(
-      "hidden"
-    );
-
-  }
+  closeSavePanel
 );
 
 
 /* =========================================================
-   MENSAGENS
-========================================================= */
+   8. CRIAR CONTA
+   ========================================================= */
 
-function showAuthMessage(message) {
+async function registerUser() {
 
-  authMessage.textContent =
-    message;
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
 
-}
+  if (!email) {
 
+    showAuthMessage(
+      "Digite seu e-mail.",
+      "error"
+    );
 
-function clearAuthMessage() {
+    emailInput.focus();
 
-  authMessage.textContent =
-    "";
+    return;
+  }
 
-}
+  if (!password) {
 
+    showAuthMessage(
+      "Digite uma senha.",
+      "error"
+    );
 
-/* =========================================================
-   TRADUZIR ERROS FIREBASE
-========================================================= */
+    passwordInput.focus();
 
-function firebaseError(error) {
+    return;
+  }
 
-  const messages = {
+  if (password.length < 6) {
 
-    "auth/invalid-email":
-      "Digite um e-mail válido.",
-
-    "auth/invalid-credential":
-      "E-mail ou senha incorretos.",
-
-    "auth/wrong-password":
-      "E-mail ou senha incorretos.",
-
-    "auth/user-not-found":
-      "E-mail ou senha incorretos.",
-
-    "auth/email-already-in-use":
-      "Este e-mail já está cadastrado.",
-
-    "auth/weak-password":
+    showAuthMessage(
       "A senha precisa ter pelo menos 6 caracteres.",
+      "error"
+    );
 
-    "auth/network-request-failed":
-      "Verifique sua conexão com a internet.",
+    return;
+  }
 
-    "auth/too-many-requests":
-      "Muitas tentativas. Aguarde um pouco.",
+  if (!auth) {
 
-    "auth/operation-not-allowed":
-      "O login por e-mail não está ativado no Firebase.",
+    showAuthMessage(
+      "Firebase não está configurado.",
+      "error"
+    );
 
-    "permission-denied":
-      "Você não tem permissão para acessar os dados."
+    return;
+  }
 
-  };
+  registerBtn.disabled = true;
 
-  return messages[error.code] ||
-    error.message ||
-    "Ocorreu um erro.";
+  showAuthMessage(
+    "Criando sua conta...",
+    "info"
+  );
 
-}
+  try {
 
-
-/* =========================================================
-   CRIAR SLIDES
-========================================================= */
-
-function createSlides(lyrics, amount) {
-
-  const lines =
-    lyrics
-      .split(/\r?\n/)
-      .map(
-        line =>
-          line.trim()
-      )
-      .filter(
-        line =>
-          line.length > 0
+    const result =
+      await auth.createUserWithEmailAndPassword(
+        email,
+        password
       );
 
+    currentUser = result.user;
+
+    showAuthMessage(
+      "Conta criada com sucesso!",
+      "success"
+    );
+
+    emailInput.value = "";
+    passwordInput.value = "";
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao criar conta:",
+      error
+    );
+
+    let message =
+      "Não foi possível criar a conta.";
+
+    switch (error.code) {
+
+      case "auth/email-already-in-use":
+        message =
+          "Este e-mail já possui uma conta.";
+        break;
+
+      case "auth/invalid-email":
+        message =
+          "Digite um e-mail válido.";
+        break;
+
+      case "auth/weak-password":
+        message =
+          "A senha é muito fraca.";
+        break;
+
+      case "auth/network-request-failed":
+        message =
+          "Verifique sua conexão com a internet.";
+        break;
+
+      case "auth/operation-not-allowed":
+        message =
+          "O login por e-mail ainda não está ativado no Firebase.";
+        break;
+
+      default:
+        message =
+          error.message || message;
+    }
+
+    showAuthMessage(
+      message,
+      "error"
+    );
+
+  } finally {
+
+    registerBtn.disabled = false;
+  }
+}
+
+
+registerBtn.addEventListener(
+  "click",
+  registerUser
+);
+
+
+/* =========================================================
+   9. LOGIN
+   ========================================================= */
+
+async function loginUser() {
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+
+  if (!email) {
+
+    showAuthMessage(
+      "Digite seu e-mail.",
+      "error"
+    );
+
+    emailInput.focus();
+
+    return;
+  }
+
+  if (!password) {
+
+    showAuthMessage(
+      "Digite sua senha.",
+      "error"
+    );
+
+    passwordInput.focus();
+
+    return;
+  }
+
+  if (!auth) {
+
+    showAuthMessage(
+      "Firebase não está configurado.",
+      "error"
+    );
+
+    return;
+  }
+
+  loginBtn.disabled = true;
+
+  showAuthMessage(
+    "Entrando...",
+    "info"
+  );
+
+  try {
+
+    await auth.signInWithEmailAndPassword(
+      email,
+      password
+    );
+
+    showAuthMessage(
+      "Login realizado com sucesso!",
+      "success"
+    );
+
+    emailInput.value = "";
+    passwordInput.value = "";
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao entrar:",
+      error
+    );
+
+    let message =
+      "Não foi possível entrar.";
+
+    switch (error.code) {
+
+      case "auth/user-not-found":
+        message =
+          "Não existe uma conta com este e-mail.";
+        break;
+
+      case "auth/wrong-password":
+        message =
+          "Senha incorreta.";
+        break;
+
+      case "auth/invalid-credential":
+        message =
+          "E-mail ou senha incorretos.";
+        break;
+
+      case "auth/invalid-email":
+        message =
+          "Digite um e-mail válido.";
+        break;
+
+      case "auth/network-request-failed":
+        message =
+          "Verifique sua conexão com a internet.";
+        break;
+
+      default:
+        message =
+          error.message || message;
+    }
+
+    showAuthMessage(
+      message,
+      "error"
+    );
+
+  } finally {
+
+    loginBtn.disabled = false;
+  }
+}
+
+
+loginBtn.addEventListener(
+  "click",
+  loginUser
+);
+
+
+/* =========================================================
+   10. LOGOUT
+   ========================================================= */
+
+async function logoutUser() {
+
+  if (!auth) {
+    return;
+  }
+
+  try {
+
+    await auth.signOut();
+
+    showAuthMessage(
+      "Você saiu da conta.",
+      "info"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao sair:",
+      error
+    );
+
+    showAuthMessage(
+      "Não foi possível sair da conta.",
+      "error"
+    );
+  }
+}
+
+
+logoutBtn.addEventListener(
+  "click",
+  logoutUser
+);
+
+
+/* =========================================================
+   11. ESTADO DO USUÁRIO
+   ========================================================= */
+
+async function handleAuthStateChanged(user) {
+
+  currentUser = user;
+
+  if (user) {
+
+    loginArea.classList.add("hidden");
+
+    userArea.classList.remove("hidden");
+
+    userEmail.textContent =
+      user.email || "Usuário";
+
+    currentUserStatus.textContent =
+      "Conectado";
+
+    await loadSavedSongs();
+
+  } else {
+
+    loginArea.classList.remove("hidden");
+
+    userArea.classList.add("hidden");
+
+    userEmail.textContent =
+      "—";
+
+    currentUserStatus.textContent =
+      "Visitante";
+
+    savedSongs.innerHTML = `
+      <p class="empty-message">
+        Entre na sua conta para ver suas músicas salvas.
+      </p>
+    `;
+  }
+}
+
+
+/* =========================================================
+   12. PREPARAR LETRA
+   ========================================================= */
+
+function getLyricsLines() {
+
+  return songLyrics.value
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+}
+
+
+/* =========================================================
+   13. CRIAR SLIDES
+   ========================================================= */
+
+function createSlidesFromLyrics(
+  lyrics,
+  amount
+) {
 
   const slides = [];
 
-
   for (
     let i = 0;
-    i < lines.length;
+    i < lyrics.length;
     i += amount
   ) {
 
     slides.push(
-      lines
-        .slice(
-          i,
-          i + amount
-        )
-        .join("\n")
+      lyrics.slice(
+        i,
+        i + amount
+      )
     );
-
   }
 
-
   return slides;
+}
+
+
+/* =========================================================
+   14. GERAR SLIDES
+   ========================================================= */
+
+function generateSlides() {
+
+  const title =
+    songTitle.value.trim();
+
+  const category =
+    songCategory.value;
+
+  const lyrics =
+    getLyricsLines();
+
+  const amount =
+    Number(versesPerSlide.value);
+
+  if (!title) {
+
+    alert(
+      "Digite o nome da música."
+    );
+
+    songTitle.focus();
+
+    return;
+  }
+
+  if (lyrics.length === 0) {
+
+    alert(
+      "Digite a letra da música."
+    );
+
+    songLyrics.focus();
+
+    return;
+  }
+
+  if (!amount || amount < 1) {
+
+    alert(
+      "Escolha a quantidade de versos por slide."
+    );
+
+    return;
+  }
+
+  const slides =
+    createSlidesFromLyrics(
+      lyrics,
+      amount
+    );
+
+  const song = {
+
+    id:
+      createLocalId(),
+
+    title,
+
+    category,
+
+    lyrics,
+
+    versesPerSlide:
+      amount,
+
+    slides,
+
+    createdAt:
+      Date.now()
+  };
+
+  presentationSongs.push(song);
+
+  selectedSong = song;
+
+  renderMusicList();
+
+  renderSelectedSong();
+
+  clearEditor();
 
 }
 
 
 /* =========================================================
-   GERAR SLIDES
-========================================================= */
-
-generateBtn.addEventListener(
-  "click",
-  () => {
-
-    const title =
-      songTitle.value.trim();
-
-    const category =
-      songCategory.value;
-
-    const lyrics =
-      songLyrics.value.trim();
-
-    const amount =
-      parseInt(
-        versesPerSlide.value,
-        10
-      );
-
-
-    if (!title) {
-
-      alert(
-        "Digite o nome da música."
-      );
-
-      songTitle.focus();
-
-      return;
-
-    }
-
-
-    if (!lyrics) {
-
-      alert(
-        "Digite ou cole a letra da música."
-      );
-
-      songLyrics.focus();
-
-      return;
-
-    }
-
-
-    const slides =
-      createSlides(
-        lyrics,
-        amount
-      );
-
-
-    if (
-      slides.length === 0
-    ) {
-
-      alert(
-        "Não foi possível criar os slides."
-      );
-
-      return;
-
-    }
-
-
-    const music = {
-
-      id:
-        createLocalId(),
-
-      title:
-        title,
-
-      category:
-        category,
-
-      slides:
-        slides,
-
-      saved:
-        false,
-
-      createdAt:
-        Date.now()
-
-    };
-
-
-    presentationSongs.push(
-      music
-    );
-
-
-    selectedSongIndex =
-      presentationSongs.length - 1;
-
-
-    renderMusicList();
-
-    selectPresentationSong(
-      selectedSongIndex
-    );
-
-
-    /*
-      Limpa somente a letra e título
-      para facilitar o cadastro da
-      próxima música.
-    */
-
-    songTitle.value =
-      "";
-
-    songLyrics.value =
-      "";
-
-  }
-);
-
-
-/* =========================================================
-   ID LOCAL
-========================================================= */
+   15. ID LOCAL
+   ========================================================= */
 
 function createLocalId() {
 
   return (
-    "local_" +
-    Date.now() +
-    "_" +
+    Date.now().toString(36) +
     Math.random()
       .toString(36)
-      .substring(2, 8)
+      .substring(2, 9)
   );
+}
+
+
+generateBtn.addEventListener(
+  "click",
+  generateSlides
+);
+
+
+/* =========================================================
+   16. LIMPAR EDITOR
+   ========================================================= */
+
+function clearEditor() {
+
+  songTitle.value = "";
+  songLyrics.value = "";
 
 }
 
 
 /* =========================================================
-   RENDERIZAR LISTA DE MÚSICAS
-========================================================= */
+   17. RENDERIZAR LISTA DE MÚSICAS
+   ========================================================= */
 
 function renderMusicList() {
 
-  musicList.innerHTML =
-    "";
-
+  musicList.innerHTML = "";
 
   musicCount.textContent =
-    `${presentationSongs.length} ${
-      presentationSongs.length === 1
-        ? "música"
-        : "músicas"
-    }`;
+    presentationSongs.length === 1
+      ? "1 música"
+      : ${presentationSongs.length} músicas;
 
-
-  if (
-    presentationSongs.length === 0
-  ) {
+  if (presentationSongs.length === 0) {
 
     musicList.innerHTML = `
-
       <div class="empty-state">
 
         <span>🎵</span>
@@ -456,337 +814,95 @@ function renderMusicList() {
         </h3>
 
         <p>
-          Gere uma música para começar.
+          Preencha os campos acima e clique
+          em "Gerar Slides".
         </p>
 
       </div>
-
     `;
 
-    startPresentationBtn.disabled =
-      true;
-
     return;
-
   }
 
-
   presentationSongs.forEach(
-    (song, index) => {
+    song => {
 
-      /*
-        Filtro
-      */
+      const card =
+        document.createElement("div");
 
-      if (
-        activeFilter !== "Todos" &&
-        song.category !== activeFilter
-      ) {
+      card.className =
+        "music-card";
 
-        return;
+      card.innerHTML = `
 
-      }
+        <div class="music-card-info">
 
+          <h3>
+            ${escapeHTML(song.title)}
+          </h3>
 
-      /*
-        Item da música
-      */
+          <p>
+            ${escapeHTML(song.category)}
+            •
+            ${song.lyrics.length} versos
+            •
+            ${song.slides.length} slides
+          </p>
 
-      const item =
-        document.createElement(
-          "div"
+        </div>
+
+        <div class="music-card-actions">
+
+          <button
+            type="button"
+            class="btn"
+            data-action="select">
+            👁️ Ver
+          </button>
+
+          <button
+            type="button"
+            class="btn danger"
+            data-action="delete">
+            🗑️
+          </button>
+
+        </div>
+      `;
+
+      const selectButton =
+        card.querySelector(
+          '[data-action="select"]'
         );
 
-      item.className =
-        "music-item";
-
-
-      if (
-        index === selectedSongIndex
-      ) {
-
-        item.classList.add(
-          "active"
+      const deleteButton =
+        card.querySelector(
+          '[data-action="delete"]'
         );
 
-      }
-
-
-      const info =
-        document.createElement(
-          "div"
-        );
-
-      info.className =
-        "music-item-info";
-
-
-      const title =
-        document.createElement(
-          "div"
-        );
-
-      title.className =
-        "music-item-title";
-
-      title.textContent =
-        ${index + 1}. ${song.title};
-
-
-      const meta =
-        document.createElement(
-          "div"
-        );
-
-      meta.className =
-        "music-item-meta";
-
-      meta.textContent =
-        `${song.category} • ${
-          song.slides.length
-        } slides`;
-
-
-      info.appendChild(
-        title
-      );
-
-      info.appendChild(
-        meta
-      );
-
-
-      const actions =
-        document.createElement(
-          "div"
-        );
-
-      actions.className =
-        "music-item-actions";
-
-
-      const selectBtn =
-        document.createElement(
-          "button"
-        );
-
-      selectBtn.type =
-        "button";
-
-      selectBtn.textContent =
-        "Abrir";
-
-
-      selectBtn.addEventListener(
-        "click",
-        (event) => {
-
-          event.stopPropagation();
-
-          selectPresentationSong(
-            index
-          );
-
-        }
-      );
-
-
-      const deleteBtn =
-        document.createElement(
-          "button"
-        );
-
-      deleteBtn.type =
-        "button";
-
-      deleteBtn.className =
-        "delete-music";
-
-      deleteBtn.textContent =
-        "🗑️";
-
-
-      deleteBtn.addEventListener(
-        "click",
-        (event) => {
-
-          event.stopPropagation();
-
-          removePresentationSong(
-            index
-          );
-
-        }
-      );
-
-
-      actions.appendChild(
-        selectBtn
-      );
-
-      actions.appendChild(
-        deleteBtn
-      );
-
-
-      item.appendChild(
-        info
-      );
-
-      item.appendChild(
-        actions
-      );
-
-
-      item.addEventListener(
+      selectButton.addEventListener(
         "click",
         () => {
 
-          selectPresentationSong(
-            index
+          selectedSong = song;
+
+          renderSelectedSong();
+
+        }
+      );
+
+      deleteButton.addEventListener(
+        "click",
+        () => {
+
+          deletePresentationSong(
+            song.id
           );
 
         }
       );
 
-
-      musicList.appendChild(
-        item
-      );
-
-
-      /*
-        Separador visual
-        entre as músicas.
-      */
-
-      if (
-        index <
-        presentationSongs.length - 1
-      ) {
-
-        const separator =
-          document.createElement(
-            "div"
-          );
-
-        separator.className =
-          "music-separator";
-
-        separator.textContent =
-          "Próxima música";
-
-        musicList.appendChild(
-          separator
-        );
-
-      }
-
-    }
-  );
-
-
-  startPresentationBtn.disabled =
-    presentationSongs.length === 0;
-
-}
-
-
-/* =========================================================
-   SELECIONAR MÚSICA
-========================================================= */
-
-function selectPresentationSong(index) {
-
-  const song =
-    presentationSongs[index];
-
-
-  if (!song) return;
-
-
-  selectedSongIndex =
-    index;
-
-
-  selectedSongTitle.textContent =
-    song.title;
-
-
-  selectedSongInfo.textContent =
-    `${song.category} • ${
-      song.slides.length
-    } slides`;
-
-
-  renderSlides(
-    song
-  );
-
-  renderMusicList();
-
-}
-
-
-/* =========================================================
-   MOSTRAR SLIDES
-========================================================= */
-
-function renderSlides(song) {
-
-  slidesContainer.innerHTML =
-    "";
-
-
-  song.slides.forEach(
-    (slide, index) => {
-
-      const box =
-        document.createElement(
-          "div"
-        );
-
-      box.className =
-        "slide-box";
-
-
-      const number =
-        document.createElement(
-          "div"
-        );
-
-      number.className =
-        "slide-number";
-
-      number.textContent =
-        SLIDE ${index + 1};
-
-
-      const content =
-        document.createElement(
-          "div"
-        );
-
-      content.className =
-        "slide-content";
-
-      content.textContent =
-        slide;
-
-
-      box.appendChild(
-        number
-      );
-
-      box.appendChild(
-        content
-      );
-
-
-      slidesContainer.appendChild(
-        box
-      );
-
+      musicList.appendChild(card);
     }
   );
 
@@ -794,41 +910,31 @@ function renderSlides(song) {
 
 
 /* =========================================================
-   REMOVER MÚSICA DA APRESENTAÇÃO
-========================================================= */
+   18. EXCLUIR MÚSICA DA APRESENTAÇÃO
+   ========================================================= */
 
-function removePresentationSong(index) {
+function deletePresentationSong(id) {
 
-  const song =
-    presentationSongs[index];
-
-
-  if (!song) return;
-
-
-  const confirmDelete =
+  const confirmed =
     confirm(
-      Remover "${song.title}" da apresentação?
+      "Deseja remover esta música da apresentação?"
     );
 
-
-  if (!confirmDelete) {
+  if (!confirmed) {
     return;
   }
 
-
-  presentationSongs.splice(
-    index,
-    1
-  );
-
+  presentationSongs =
+    presentationSongs.filter(
+      song => song.id !== id
+    );
 
   if (
-    presentationSongs.length === 0
+    selectedSong &&
+    selectedSong.id === id
   ) {
 
-    selectedSongIndex =
-      -1;
+    selectedSong = null;
 
     selectedSongTitle.textContent =
       "Slides";
@@ -836,45 +942,11 @@ function removePresentationSong(index) {
     selectedSongInfo.textContent =
       "Os slides aparecerão aqui.";
 
-    slidesContainer.innerHTML = `
+    renderEmptySlides();
 
-      <div class="empty-state">
-
-        <span>📺</span>
-
-        <h3>
-          Aguardando slides
-        </h3>
-
-        <p>
-          Gere uma música para começar.
-        </p>
-
-      </div>
-
-    `;
-
+    startPresentationBtn.disabled =
+      true;
   }
-
-  else {
-
-    if (
-      selectedSongIndex >=
-      presentationSongs.length
-    ) {
-
-      selectedSongIndex =
-        presentationSongs.length - 1;
-
-    }
-
-
-    selectPresentationSong(
-      selectedSongIndex
-    );
-
-  }
-
 
   renderMusicList();
 
@@ -882,1250 +954,170 @@ function removePresentationSong(index) {
 
 
 /* =========================================================
-   FILTROS
-========================================================= */
+   19. MOSTRAR MÚSICA SELECIONADA
+   ========================================================= */
 
-const filterButtons =
-  document.querySelectorAll(
-    ".filter-btn"
-  );
+function renderSelectedSong() {
 
+  if (!selectedSong) {
 
-filterButtons.forEach(
-  button => {
+    renderEmptySlides();
 
-    button.addEventListener(
-      "click",
-      () => {
-
-        filterButtons.forEach(
-          item => {
-
-            item.classList.remove(
-              "active"
-            );
-
-          }
-        );
-
-
-        button.classList.add(
-          "active"
-        );
-
-
-        activeFilter =
-          button.dataset.filter;
-
-
-        renderMusicList();
-
-      }
-    );
-
-  }
-);
-
-
-/* =========================================================
-   INICIAR APRESENTAÇÃO
-========================================================= */
-
-startPresentationBtn.addEventListener(
-  "click",
-  () => {
-
-    if (
-      presentationSongs.length === 0
-    ) {
-
-      return;
-
-    }
-
-
-    if (
-      selectedSongIndex < 0
-    ) {
-
-      selectedSongIndex =
-        0;
-
-    }
-
-
-    currentSlideIndex =
-      0;
-
-    showingBlackScreen =
-      false;
-
-
-    presentationModal.classList.remove(
-      "hidden"
-    );
-
-
-    document.body.style.overflow =
-      "hidden";
-
-
-    updatePresentation();
-
-  }
-);
-
-
-/* =========================================================
-   ATUALIZAR APRESENTAÇÃO
-========================================================= */
-
-function updatePresentation() {
-
-  /*
-    Tela preta entre músicas
-  */
-
-  if (showingBlackScreen) {
-
-    presentationModal.classList.add(
-      "black-screen"
-    );
-
-    presentationSongName.textContent =
-      "";
-
-    presentationText.textContent =
-      "";
-
-    presentationCounter.textContent =
-      "";
+    startPresentationBtn.disabled =
+      true;
 
     return;
-
   }
 
+  selectedSongTitle.textContent =
+    selectedSong.title;
 
-  presentationModal.classList.remove(
-    "black-screen"
+  selectedSongInfo.textContent =
+    `${selectedSong.category} • ` +
+    `${selectedSong.lyrics.length} versos • ` +
+    ${selectedSong.slides.length} slides;
+
+  slidesContainer.innerHTML = "";
+
+  selectedSong.slides.forEach(
+    (slide, index) => {
+
+      const slideElement =
+        document.createElement("div");
+
+      slideElement.className =
+        "slide-preview";
+
+      slideElement.innerHTML = `
+
+        <div class="slide-number">
+          Slide ${index + 1}
+        </div>
+
+        <div class="slide-text">
+
+          ${slide
+            .map(
+              line =>
+                <div>${escapeHTML(line)}</div>
+            )
+            .join("")
+          }
+
+        </div>
+      `;
+
+      slidesContainer.appendChild(
+        slideElement
+      );
+    }
   );
 
-
-  const song =
-    presentationSongs[
-      selectedSongIndex
-    ];
-
-
-  if (!song) return;
-
-
-  presentationSongName.textContent =
-    song.title;
-
-
-  presentationText.textContent =
-    song.slides[
-      currentSlideIndex
-    ];
-
-
-  presentationCounter.textContent =
-    `Música ${
-      selectedSongIndex + 1
-    } de ${
-      presentationSongs.length
-    } • Slide ${
-      currentSlideIndex + 1
-    } de ${
-      song.slides.length
-    }`;
-
-}
-
-
-/* =========================================================
-   PRÓXIMO
-========================================================= */
-
-nextSlideBtn.addEventListener(
-  "click",
-  () => {
-
-    if (showingBlackScreen) {
-
-      showingBlackScreen =
-        false;
-
-      currentSlideIndex =
-        0;
-
-      updatePresentation();
-
-      return;
-
-    }
-
-
-    const song =
-      presentationSongs[
-        selectedSongIndex
-      ];
-
-
-    if (!song) return;
-
-
-    /*
-      Próximo slide da mesma música
-    */
-
-    if (
-      currentSlideIndex <
-      song.slides.length - 1
-    ) {
-
-      currentSlideIndex++;
-
-      updatePresentation();
-
-      return;
-
-    }
-
-
-    /*
-      Terminou a música.
-      Primeiro mostra a tela preta.
-    */
-
-    if (
-      selectedSongIndex <
-      presentationSongs.length - 1
-    ) {
-
-      showingBlackScreen =
-        true;
-
-      updatePresentation();
-
-      return;
-
-    }
-
-
-    /*
-      Terminou tudo.
-    */
-
-    alert(
-      "Fim da apresentação."
-    );
-
-  }
-);
-
-
-/* =========================================================
-   ANTERIOR
-========================================================= */
-
-previousSlideBtn.addEventListener(
-  "click",
-  () => {
-
-    if (showingBlackScreen) {
-
-      showingBlackScreen =
-        false;
-
-      const previousSongIndex =
-        selectedSongIndex - 1;
-
-
-      if (
-        previousSongIndex >= 0
-      ) {
-
-        selectedSongIndex =
-          previousSongIndex;
-
-        currentSlideIndex =
-          presentationSongs[
-            selectedSongIndex
-          ].slides.length - 1;
-
-      }
-
-
-      updatePresentation();
-
-      return;
-
-    }
-
-
-    if (
-      currentSlideIndex > 0
-    ) {
-
-      currentSlideIndex--;
-
-      updatePresentation();
-
-      return;
-
-    }
-
-
-    /*
-      Voltar para a música anterior
-    */
-
-    if (
-      selectedSongIndex > 0
-    ) {
-
-      selectedSongIndex--;
-
-      currentSlideIndex =
-        presentationSongs[
-          selectedSongIndex
-        ].slides.length - 1;
-
-      updatePresentation();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   FECHAR APRESENTAÇÃO
-========================================================= */
-
-closePresentationBtn.addEventListener(
-  "click",
-  closePresentation
-);
-
-
-function closePresentation() {
-
-  presentationModal.classList.add(
-    "hidden"
-  );
-
-  presentationModal.classList.remove(
-    "black-screen"
-  );
-
-  document.body.style.overflow =
-    "";
-
-  showingBlackScreen =
+  startPresentationBtn.disabled =
     false;
 
 }
 
 
 /* =========================================================
-   TECLADO
-========================================================= */
+   20. SLIDES VAZIOS
+   ========================================================= */
 
-document.addEventListener(
-  "keydown",
-  event => {
+function renderEmptySlides() {
 
-    if (
-      presentationModal.classList.contains(
-        "hidden"
-      )
-    ) {
+  slidesContainer.innerHTML = `
 
-      return;
+    <div class="empty-state">
 
-    }
+      <span>📺</span>
 
+      <h3>
+        Aguardando slides
+      </h3>
 
-    if (
-      event.key ===
-      "ArrowRight"
-    ) {
-
-      nextSlideBtn.click();
-
-    }
-
-
-    if (
-      event.key ===
-      "ArrowLeft"
-    ) {
-
-      previousSlideBtn.click();
-
-    }
-
-
-    if (
-      event.key ===
-      "Escape"
-    ) {
-
-      closePresentation();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   LOGIN
-========================================================= */
-
-loginBtn.addEventListener(
-  "click",
-  async () => {
-
-    const email =
-      emailInput.value.trim();
-
-    const password =
-      passwordInput.value;
-
-
-    clearAuthMessage();
-
-
-    if (!email || !password) {
-
-      showAuthMessage(
-        "Preencha o e-mail e a senha."
-      );
-
-      return;
-
-    }
-
-
-    loginBtn.disabled =
-      true;
-
-    loginBtn.textContent =
-      "Entrando...";
-
-
-    try {
-
-      await auth.signInWithEmailAndPassword(
-        email,
-        password
-      );
-
-      showAuthMessage(
-        "Login realizado!"
-      );
-
-    }
-
-    catch (error) {
-
-      console.error(error);
-
-      showAuthMessage(
-        firebaseError(error)
-      );
-
-    }
-
-    finally {
-
-      loginBtn.disabled =
-        false;
-
-      loginBtn.textContent =
-        "Entrar";
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   RENDERIZAR REPERTÓRIO SALVO
-========================================================= */
-
-function renderSavedSongs() {
-
-  savedSongsContainer.innerHTML = "";
-
-
-  if (!currentUser) {
-
-    savedSongsContainer.innerHTML = `
-      <p class="empty-message">
-        Entre na sua conta para ver suas músicas salvas.
+      <p>
+        Gere uma música para começar.
       </p>
-    `;
 
-    return;
-  }
-
-
-  if (savedSongs.length === 0) {
-
-    savedSongsContainer.innerHTML = `
-      <p class="empty-message">
-        Você ainda não possui músicas salvas.
-      </p>
-    `;
-
-    return;
-  }
-
-
-  const filteredSongs =
-    activeFilter === "Todos"
-      ? savedSongs
-      : savedSongs.filter(
-          song =>
-            song.category === activeFilter
-        );
-
-
-  if (filteredSongs.length === 0) {
-
-    savedSongsContainer.innerHTML = `
-      <p class="empty-message">
-        Nenhuma música encontrada nessa categoria.
-      </p>
-    `;
-
-    return;
-  }
-
-
-  filteredSongs.forEach(song => {
-
-    const item =
-      document.createElement("div");
-
-    item.className =
-      "saved-song";
-
-
-    const info =
-      document.createElement("div");
-
-    info.className =
-      "saved-song-info";
-
-
-    const title =
-      document.createElement("div");
-
-    title.className =
-      "saved-song-title";
-
-    title.textContent =
-      song.title;
-
-
-    const category =
-      document.createElement("div");
-
-    category.className =
-      "saved-song-category";
-
-    category.textContent =
-      `${song.category} • ${
-        song.slides
-          ? song.slides.length
-          : 0
-      } slides`;
-
-
-    info.appendChild(title);
-    info.appendChild(category);
-
-
-    const buttons =
-      document.createElement("div");
-
-
-    const loadButton =
-      document.createElement("button");
-
-    loadButton.type =
-      "button";
-
-    loadButton.textContent =
-      "Abrir";
-
-
-    loadButton.addEventListener(
-      "click",
-      () => {
-
-        loadSavedSong(
-          song
-        );
-
-      }
-    );
-
-
-    const deleteButton =
-      document.createElement("button");
-
-    deleteButton.type =
-      "button";
-
-    deleteButton.textContent =
-      "🗑️";
-
-
-    deleteButton.addEventListener(
-      "click",
-      () => {
-
-        deleteSavedSong(
-          song.id
-        );
-
-      }
-    );
-
-
-    buttons.appendChild(
-      loadButton
-    );
-
-    buttons.appendChild(
-      deleteButton
-    );
-
-
-    item.appendChild(info);
-
-    item.appendChild(buttons);
-
-
-    savedSongsContainer.appendChild(
-      item
-    );
-
-  });
+    </div>
+  `;
 
 }
 
 
 /* =========================================================
-   SALVAR MÚSICA NO FIREBASE
-========================================================= */
+   21. APRESENTAÇÃO
+   ========================================================= */
 
-async function saveCurrentSong() {
+function startPresentation() {
 
-  if (!currentUser) {
-
-    savePanel.classList.remove(
-      "hidden"
-    );
-
-    showAuthMessage(
-      "Entre ou crie uma conta para salvar a música."
-    );
-
-    return;
-
-  }
-
-
-  const title =
-    songTitle.value.trim();
-
-  const category =
-    songCategory.value;
-
-  const lyrics =
-    songLyrics.value.trim();
-
-  const amount =
-    parseInt(
-      versesPerSlide.value,
-      10
-    );
-
-
-  if (!title) {
-
-    alert(
-      "Digite o nome da música antes de salvar."
-    );
-
-    return;
-
-  }
-
-
-  if (!lyrics) {
-
-    alert(
-      "Digite a letra da música antes de salvar."
-    );
-
-    return;
-
-  }
-
-
-  const slides =
-    createSlides(
-      lyrics,
-      amount
-    );
-
-
-  try {
-
-    await db
-      .collection("songs")
-      .add({
-
-        userId:
-          currentUser.uid,
-
-        title:
-          title,
-
-        category:
-          category,
-
-        lyrics:
-          lyrics,
-
-        versesPerSlide:
-          amount,
-
-        slides:
-          slides,
-
-        createdAt:
-          firebase.firestore.FieldValue.serverTimestamp()
-
-      });
-
-
-    alert(
-      "🎵 Música salva com sucesso!"
-    );
-
-
-    /*
-      Também coloca a música
-      na apresentação atual.
-    */
-
-    const alreadyExists =
-      presentationSongs.some(
-        song =>
-          song.title === title
-      );
-
-
-    if (!alreadyExists) {
-
-      presentationSongs.push({
-
-        id:
-          createLocalId(),
-
-        title:
-          title,
-
-        category:
-          category,
-
-        slides:
-          slides,
-
-        saved:
-          true,
-
-        createdAt:
-          Date.now()
-
-      });
-
-
-      selectedSongIndex =
-        presentationSongs.length - 1;
-
-
-      renderMusicList();
-
-      selectPresentationSong(
-        selectedSongIndex
-      );
-
-    }
-
-  }
-
-  catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Não foi possível salvar a música:\n\n" +
-      firebaseError(error)
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   BOTÃO SALVAR MÚSICA
-========================================================= */
-
-const saveMusicAction =
-  document.createElement("button");
-
-saveMusicAction.type =
-  "button";
-
-saveMusicAction.textContent =
-  "💾 Salvar música atual";
-
-saveMusicAction.className =
-  "btn primary";
-
-
-saveMusicAction.style.marginTop =
-  "12px";
-
-saveMusicAction.style.width =
-  "100%";
-
-
-/*
-  Coloca o botão dentro
-  da área do usuário.
-*/
-
-userArea.appendChild(
-  saveMusicAction
-);
-
-
-saveMusicAction.addEventListener(
-  "click",
-  saveCurrentSong
-);
-
-
-/* =========================================================
-   CARREGAR MÚSICA SALVA
-========================================================= */
-
-function loadSavedSong(song) {
-
-  if (!song) {
+  if (!selectedSong) {
     return;
   }
 
+  presentationSlides =
+    selectedSong.slides;
 
-  /*
-    Preenche os campos
-    do editor.
-  */
+  if (
+    presentationSlides.length === 0
+  ) {
+    return;
+  }
 
-  songTitle.value =
-    song.title || "";
+  currentPresentationSlide = 0;
 
-  songCategory.value =
-    song.category || "Outros";
+  presentationSongName.textContent =
+    selectedSong.title;
 
-  songLyrics.value =
-    song.lyrics || "";
-
-  versesPerSlide.value =
-    song.versesPerSlide || 2;
-
-
-  /*
-    Cria uma música para
-    a apresentação atual.
-  */
-
-  const music = {
-
-    id:
-      createLocalId(),
-
-    title:
-      song.title,
-
-    category:
-      song.category,
-
-    slides:
-      song.slides || createSlides(
-        song.lyrics || "",
-        song.versesPerSlide || 2
-      ),
-
-    saved:
-      true,
-
-    createdAt:
-      Date.now()
-
-  };
-
-
-  presentationSongs.push(
-    music
-  );
-
-
-  selectedSongIndex =
-    presentationSongs.length - 1;
-
-
-  renderMusicList();
-
-  selectPresentationSong(
-    selectedSongIndex
-  );
-
-
-  /*
-    Fecha o painel para
-    voltar à tela principal.
-  */
-
-  savePanel.classList.add(
+  presentationModal.classList.remove(
     "hidden"
   );
 
-}
-
-
-/* =========================================================
-   EXCLUIR MÚSICA SALVA
-========================================================= */
-
-async function deleteSavedSong(id) {
-
-  if (!currentUser) {
-    return;
-  }
-
-
-  const song =
-    savedSongs.find(
-      item =>
-        item.id === id
-    );
-
-
-  if (!song) {
-    return;
-  }
-
-
-  const confirmed =
-    confirm(
-      Excluir permanentemente "${song.title}"?
-    );
-
-
-  if (!confirmed) {
-    return;
-  }
-
-
-  try {
-
-    await db
-      .collection("songs")
-      .doc(id)
-      .delete();
-
-
-  }
-
-  catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Não foi possível excluir a música:\n\n" +
-      firebaseError(error)
-    );
-
-  }
+  updatePresentation();
 
 }
 
 
-/* =========================================================
-   FILTROS DO REPERTÓRIO
-========================================================= */
-
-filterButtons.forEach(
-  button => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        activeFilter =
-          button.dataset.filter;
-
-
-        renderSavedSongs();
-
-      }
-    );
-
-  }
-);
-
-
-/* =========================================================
-   SALVAR A MÚSICA PELO BOTÃO PRINCIPAL
-========================================================= */
-
-function createSaveButtonForEditor() {
-
-  const button =
-    document.createElement("button");
-
-  button.type =
-    "button";
-
-  button.textContent =
-    "💾 Salvar música";
-
-  button.className =
-    "btn secondary";
-
-
-  button.style.minHeight =
-    "43px";
-
-
-  button.addEventListener(
-    "click",
-    () => {
-
-      if (!currentUser) {
-
-        savePanel.classList.remove(
-          "hidden"
-        );
-
-        showAuthMessage(
-          "Entre ou crie uma conta para salvar esta música."
-        );
-
-        return;
-
-      }
-
-
-      saveCurrentSong();
-
-    }
-  );
-
-
-  const editorBottom =
-    document.querySelector(
-      ".editor-bottom"
-    );
-
-
-  editorBottom.appendChild(
-    button
-  );
-
-}
-
-
-/* =========================================================
-   INICIALIZAÇÃO DO BOTÃO
-========================================================= */
-
-createSaveButtonForEditor();
-
-
-/* =========================================================
-   SALVAR AUTOMATICAMENTE A MÚSICA GERADA
-   NA APRESENTAÇÃO
-========================================================= */
-
-function addGeneratedSongToPresentation(
-  title,
-  category,
-  slides
-) {
-
-  const music = {
-
-    id:
-      createLocalId(),
-
-    title:
-      title,
-
-    category:
-      category,
-
-    slides:
-      slides,
-
-    saved:
-      false,
-
-    createdAt:
-      Date.now()
-
-  };
-
-
-  presentationSongs.push(
-    music
-  );
-
-
-  selectedSongIndex =
-    presentationSongs.length - 1;
-
-
-  renderMusicList();
-
-  selectPresentationSong(
-    selectedSongIndex
-  );
-
-}
-
-
-/* =========================================================
-   LIMPAR FORMULÁRIO
-========================================================= */
-
-function clearMusicForm() {
-
-  songTitle.value =
-    "";
-
-  songLyrics.value =
-    "";
-
-}
-
-
-/* =========================================================
-   ATALHO CTRL + ENTER
-========================================================= */
-
-songLyrics.addEventListener(
-  "keydown",
-  event => {
-
-    if (
-      event.ctrlKey &&
-      event.key === "Enter"
-    ) {
-
-      generateBtn.click();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   FECHAR PAINEL AO CLICAR FORA
-========================================================= */
-
-document.addEventListener(
+startPresentationBtn.addEventListener(
   "click",
-  event => {
-
-    if (
-      savePanel.classList.contains(
-        "hidden"
-      )
-    ) {
-
-      return;
-
-    }
+  startPresentation
+);
 
 
-    if (
-      savePanel.contains(event.target)
-    ) {
+/* =========================================================
+   22. ATUALIZAR APRESENTAÇÃO
+   ========================================================= */
 
-      return;
+function updatePresentation() {
 
-    }
-
-
-    if (
-      saveMenuBtn.contains(event.target)
-    ) {
-
-      return;
-
-    }
-
-
-    savePanel.classList.add(
-      "hidden"
-    );
-
+  if (
+    presentationSlides.length === 0
+  ) {
+    return;
   }
-);
 
+  const slide =
+    presentationSlides[
+      currentPresentationSlide
+    ];
 
-/* =========================================================
-   LIMPAR MENSAGEM QUANDO DIGITAR
-========================================================= */
+  presentationText.innerHTML =
+    slide
+      .map(
+        line =>
+          <div>${escapeHTML(line)}</div>
+      )
+      .join("");
 
-emailInput.addEventListener(
-  "input",
-  clearAuthMessage
-);
+  presentationCounter.textContent =
+    `Slide ${
+      currentPresentationSlide + 1
+    } de ${
+      presentationSlides.length
+    }`;
 
-passwordInput.addEventListener(
-  "input",
-  clearAuthMessage
-);
+  previousSlideBtn.disabled =
+    currentPresentationSlide === 0;
 
-
-/* =========================================================
-   ESTADO INICIAL
-========================================================= */
-
-renderMusicList();
-
-renderSavedSongs();
-
-
-console.log(
-  "🎵 Sistema de repertório carregado com sucesso."
-);
-   CR
+  nextSlideBtn.disabled =
+    currentPresentationSl
