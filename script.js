@@ -1,96 +1,144 @@
 /* =========================================================
    REPERTÓRIO DE SLIDES
-   JavaScript principal
+   SCRIPT PRINCIPAL
    ========================================================= */
 
 
 /* =========================================================
    1. CONFIGURAÇÃO DO FIREBASE
-   =========================================================
-
-   COLOQUE AQUI A CONFIGURAÇÃO DO SEU PROJETO FIREBASE.
-
-   Exemplo:
-
-   const firebaseConfig = {
-     apiKey: "SUA_API_KEY",
-     authDomain: "SEU_PROJETO.firebaseapp.com",
-     projectId: "SEU_PROJETO",
-     storageBucket: "SEU_PROJETO.firebasestorage.app",
-     messagingSenderId: "SEU_ID",
-     appId: "SEU_APP_ID"
-   };
-
    ========================================================= */
 
 const firebaseConfig = {
-  apiKey: "COLOQUE_SUA_API_KEY",
-  authDomain: "COLOQUE_SEU_AUTH_DOMAIN",
-  projectId: "COLOQUE_SEU_PROJECT_ID",
-  storageBucket: "COLOQUE_SEU_STORAGE_BUCKET",
-  messagingSenderId: "COLOQUE_SEU_MESSAGING_SENDER_ID",
-  appId: "COLOQUE_SEU_APP_ID"
+  apiKey: "AIzaSyDIQ8JtxKJrsZQedoVUig5bUmxc6u3wvAQ",
+  authDomain: "my-project-slide-6d2cd.firebaseapp.com",
+  projectId: "my-project-slide-6d2cd",
+  storageBucket: "my-project-slide-6d2cd.firebasestorage.app",
+  messagingSenderId: "722407689614",
+  appId: "1:722407689614:web:97f7a947dac7a1648fe8df",
+  measurementId: "G-8L6RL89M41"
 };
 
 
 /* =========================================================
-   2. INICIALIZAÇÃO
+   2. INICIALIZAR FIREBASE
    ========================================================= */
 
 let auth = null;
 let db = null;
 
+try {
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  auth = firebase.auth();
+  db = firebase.firestore();
+
+  console.log("Firebase conectado com sucesso.");
+
+} catch (error) {
+
+  console.error(
+    "Erro ao iniciar o Firebase:",
+    error
+  );
+
+}
+
+
+/* =========================================================
+   3. VARIÁVEIS DO SISTEMA
+   ========================================================= */
+
 let currentUser = null;
 
 let presentationSongs = [];
+
 let selectedSong = null;
 
 let currentFilter = "Todos";
 
 let presentationSlides = [];
+
 let currentPresentationSlide = 0;
 
 
 /* =========================================================
-   3. ELEMENTOS DO HTML
+   4. ELEMENTOS DO HTML
    ========================================================= */
 
-const saveMenuBtn = document.getElementById("saveMenuBtn");
-const savePanel = document.getElementById("savePanel");
-const closeSavePanelBtn = document.getElementById("closeSavePanelBtn");
+const saveMenuBtn =
+  document.getElementById("saveMenuBtn");
 
-const emailInput = document.getElementById("emailInput");
-const passwordInput = document.getElementById("passwordInput");
+const savePanel =
+  document.getElementById("savePanel");
 
-const loginBtn = document.getElementById("loginBtn");
-const registerBtn = document.getElementById("registerBtn");
-const logoutBtn = document.getElementById("logoutBtn");
+const closeSavePanelBtn =
+  document.getElementById("closeSavePanelBtn");
 
-const loginArea = document.getElementById("loginArea");
-const userArea = document.getElementById("userArea");
+const emailInput =
+  document.getElementById("emailInput");
 
-const userEmail = document.getElementById("userEmail");
-const authMessage = document.getElementById("authMessage");
+const passwordInput =
+  document.getElementById("passwordInput");
 
-const currentUserStatus = document.getElementById("currentUserStatus");
+const loginBtn =
+  document.getElementById("loginBtn");
 
-const savedSongs = document.getElementById("savedSongs");
+const registerBtn =
+  document.getElementById("registerBtn");
 
-const songTitle = document.getElementById("songTitle");
-const songCategory = document.getElementById("songCategory");
-const songLyrics = document.getElementById("songLyrics");
+const logoutBtn =
+  document.getElementById("logoutBtn");
 
-const versesPerSlide = document.getElementById("versesPerSlide");
+const loginArea =
+  document.getElementById("loginArea");
 
-const generateBtn = document.getElementById("generateBtn");
+const userArea =
+  document.getElementById("userArea");
 
-const musicList = document.getElementById("musicList");
-const musicCount = document.getElementById("musicCount");
+const userEmail =
+  document.getElementById("userEmail");
 
-const selectedSongTitle = document.getElementById("selectedSongTitle");
-const selectedSongInfo = document.getElementById("selectedSongInfo");
+const authMessage =
+  document.getElementById("authMessage");
 
-const slidesContainer = document.getElementById("slidesContainer");
+const savedSongs =
+  document.getElementById("savedSongs");
+
+const currentUserStatus =
+  document.getElementById("currentUserStatus");
+
+const songTitle =
+  document.getElementById("songTitle");
+
+const songCategory =
+  document.getElementById("songCategory");
+
+const songLyrics =
+  document.getElementById("songLyrics");
+
+const versesPerSlide =
+  document.getElementById("versesPerSlide");
+
+const generateBtn =
+  document.getElementById("generateBtn");
+
+const musicList =
+  document.getElementById("musicList");
+
+const musicCount =
+  document.getElementById("musicCount");
+
+const selectedSongTitle =
+  document.getElementById("selectedSongTitle");
+
+const selectedSongInfo =
+  document.getElementById("selectedSongInfo");
+
+const slidesContainer =
+  document.getElementById("slidesContainer");
 
 const startPresentationBtn =
   document.getElementById("startPresentationBtn");
@@ -118,176 +166,71 @@ const closePresentationBtn =
 
 
 /* =========================================================
-   4. VERIFICAÇÃO DOS ELEMENTOS
+   5. INICIAR INTERFACE
    ========================================================= */
 
-function checkElements() {
+function initializeInterface() {
 
-  const requiredElements = [
-    saveMenuBtn,
-    savePanel,
-    closeSavePanelBtn,
-    emailInput,
-    passwordInput,
-    loginBtn,
-    registerBtn,
-    logoutBtn,
-    loginArea,
-    userArea,
-    userEmail,
-    authMessage,
-    currentUserStatus,
-    savedSongs,
-    songTitle,
-    songCategory,
-    songLyrics,
-    versesPerSlide,
-    generateBtn,
-    musicList,
-    musicCount,
-    selectedSongTitle,
-    selectedSongInfo,
-    slidesContainer,
-    startPresentationBtn,
-    presentationModal,
-    presentationSongName,
-    presentationText,
-    presentationCounter,
-    previousSlideBtn,
-    nextSlideBtn,
-    closePresentationBtn
-  ];
+  renderMusicList();
 
-  const missing = requiredElements.some(
-    element => !element
-  );
+  renderEmptySlides();
 
-  if (missing) {
-
-    console.error(
-      "Um ou mais elementos do HTML não foram encontrados."
-    );
-
-    return false;
-  }
-
-  return true;
 }
 
 
 /* =========================================================
-   5. FIREBASE
+   6. MENU SALVAR
    ========================================================= */
-
-function initializeFirebase() {
-
-  try {
-
-    if (
-      firebaseConfig.apiKey === "COLOQUE_SUA_API_KEY" ||
-      firebaseConfig.projectId === "COLOQUE_SEU_PROJECT_ID"
-    ) {
-
-      console.warn(
-        "A configuração do Firebase ainda não foi preenchida."
-      );
-
-      showAuthMessage(
-        "Configure o Firebase no script.js para usar contas e salvar músicas.",
-        "error"
-      );
-
-      return false;
-    }
-
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-
-    auth = firebase.auth();
-    db = firebase.firestore();
-
-    auth.onAuthStateChanged(handleAuthStateChanged);
-
-    return true;
-
-  } catch (error) {
-
-    console.error(
-      "Erro ao inicializar o Firebase:",
-      error
-    );
-
-    showAuthMessage(
-      "Não foi possível conectar ao Firebase.",
-      "error"
-    );
-
-    return false;
-  }
-}
-
-
-/* =========================================================
-   6. MENSAGENS
-   ========================================================= */
-
-function showAuthMessage(message, type = "info") {
-
-  if (!authMessage) {
-    return;
-  }
-
-  authMessage.textContent = message;
-
-  authMessage.classList.remove(
-    "success",
-    "error",
-    "info"
-  );
-
-  authMessage.classList.add(type);
-}
-
-
-/* =========================================================
-   7. ABRIR / FECHAR MENU DE SALVAR
-   ========================================================= */
-
-function openSavePanel() {
-
-  savePanel.classList.remove("hidden");
-
-}
-
-
-function closeSavePanel() {
-
-  savePanel.classList.add("hidden");
-
-}
-
 
 saveMenuBtn.addEventListener(
   "click",
-  openSavePanel
+  function () {
+
+    savePanel.classList.remove("hidden");
+
+  }
 );
 
 
 closeSavePanelBtn.addEventListener(
   "click",
-  closeSavePanel
+  function () {
+
+    savePanel.classList.add("hidden");
+
+  }
 );
+
+
+/* =========================================================
+   7. MENSAGEM DE AUTENTICAÇÃO
+   ========================================================= */
+
+function showAuthMessage(
+  message,
+  type = "info"
+) {
+
+  authMessage.textContent =
+    message;
+
+  authMessage.className =
+    "auth-message " + type;
+
+}
 
 
 /* =========================================================
    8. CRIAR CONTA
    ========================================================= */
 
-async function registerUser() {
+async function createAccount() {
 
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
+  const email =
+    emailInput.value.trim();
+
+  const password =
+    passwordInput.value;
 
   if (!email) {
 
@@ -326,7 +269,7 @@ async function registerUser() {
   if (!auth) {
 
     showAuthMessage(
-      "Firebase não está configurado.",
+      "O Firebase não foi conectado.",
       "error"
     );
 
@@ -348,7 +291,8 @@ async function registerUser() {
         password
       );
 
-    currentUser = result.user;
+    currentUser =
+      result.user;
 
     showAuthMessage(
       "Conta criada com sucesso!",
@@ -368,36 +312,51 @@ async function registerUser() {
     let message =
       "Não foi possível criar a conta.";
 
-    switch (error.code) {
+    if (
+      error.code ===
+      "auth/email-already-in-use"
+    ) {
 
-      case "auth/email-already-in-use":
-        message =
-          "Este e-mail já possui uma conta.";
-        break;
+      message =
+        "Este e-mail já está cadastrado.";
 
-      case "auth/invalid-email":
-        message =
-          "Digite um e-mail válido.";
-        break;
+    } else if (
+      error.code ===
+      "auth/invalid-email"
+    ) {
 
-      case "auth/weak-password":
-        message =
-          "A senha é muito fraca.";
-        break;
+      message =
+        "Digite um e-mail válido.";
 
-      case "auth/network-request-failed":
-        message =
-          "Verifique sua conexão com a internet.";
-        break;
+    } else if (
+      error.code ===
+      "auth/weak-password"
+    ) {
 
-      case "auth/operation-not-allowed":
-        message =
-          "O login por e-mail ainda não está ativado no Firebase.";
-        break;
+      message =
+        "A senha precisa ter pelo menos 6 caracteres.";
 
-      default:
-        message =
-          error.message || message;
+    } else if (
+      error.code ===
+      "auth/operation-not-allowed"
+    ) {
+
+      message =
+        "O login por e-mail ainda não está ativado no Firebase.";
+
+    } else if (
+      error.code ===
+      "auth/network-request-failed"
+    ) {
+
+      message =
+        "Verifique sua conexão com a internet.";
+
+    } else {
+
+      message =
+        error.message ||
+        message;
     }
 
     showAuthMessage(
@@ -408,13 +367,15 @@ async function registerUser() {
   } finally {
 
     registerBtn.disabled = false;
+
   }
+
 }
 
 
 registerBtn.addEventListener(
   "click",
-  registerUser
+  createAccount
 );
 
 
@@ -424,8 +385,11 @@ registerBtn.addEventListener(
 
 async function loginUser() {
 
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
+  const email =
+    emailInput.value.trim();
+
+  const password =
+    passwordInput.value;
 
   if (!email) {
 
@@ -433,8 +397,6 @@ async function loginUser() {
       "Digite seu e-mail.",
       "error"
     );
-
-    emailInput.focus();
 
     return;
   }
@@ -446,15 +408,13 @@ async function loginUser() {
       "error"
     );
 
-    passwordInput.focus();
-
     return;
   }
 
   if (!auth) {
 
     showAuthMessage(
-      "Firebase não está configurado.",
+      "O Firebase não foi conectado.",
       "error"
     );
 
@@ -475,54 +435,61 @@ async function loginUser() {
       password
     );
 
+    emailInput.value = "";
+    passwordInput.value = "";
+
     showAuthMessage(
       "Login realizado com sucesso!",
       "success"
     );
 
-    emailInput.value = "";
-    passwordInput.value = "";
-
   } catch (error) {
 
     console.error(
-      "Erro ao entrar:",
+      "Erro no login:",
       error
     );
 
     let message =
       "Não foi possível entrar.";
 
-    switch (error.code) {
+    if (
+      error.code ===
+      "auth/invalid-credential"
+    ) {
 
-      case "auth/user-not-found":
-        message =
-          "Não existe uma conta com este e-mail.";
-        break;
+      message =
+        "E-mail ou senha incorretos.";
 
-      case "auth/wrong-password":
-        message =
-          "Senha incorreta.";
-        break;
+    } else if (
+      error.code ===
+      "auth/user-not-found"
+    ) {
 
-      case "auth/invalid-credential":
-        message =
-          "E-mail ou senha incorretos.";
-        break;
+      message =
+        "Conta não encontrada.";
 
-      case "auth/invalid-email":
-        message =
-          "Digite um e-mail válido.";
-        break;
+    } else if (
+      error.code ===
+      "auth/wrong-password"
+    ) {
 
-      case "auth/network-request-failed":
-        message =
-          "Verifique sua conexão com a internet.";
-        break;
+      message =
+        "Senha incorreta.";
 
-      default:
-        message =
-          error.message || message;
+    } else if (
+      error.code ===
+      "auth/invalid-email"
+    ) {
+
+      message =
+        "Digite um e-mail válido.";
+
+    } else {
+
+      message =
+        error.message ||
+        message;
     }
 
     showAuthMessage(
@@ -533,7 +500,9 @@ async function loginUser() {
   } finally {
 
     loginBtn.disabled = false;
+
   }
+
 }
 
 
@@ -544,98 +513,118 @@ loginBtn.addEventListener(
 
 
 /* =========================================================
-   10. LOGOUT
+   10. SAIR DA CONTA
    ========================================================= */
-
-async function logoutUser() {
-
-  if (!auth) {
-    return;
-  }
-
-  try {
-
-    await auth.signOut();
-
-    showAuthMessage(
-      "Você saiu da conta.",
-      "info"
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Erro ao sair:",
-      error
-    );
-
-    showAuthMessage(
-      "Não foi possível sair da conta.",
-      "error"
-    );
-  }
-}
-
 
 logoutBtn.addEventListener(
   "click",
-  logoutUser
+  async function () {
+
+    if (!auth) {
+      return;
+    }
+
+    try {
+
+      await auth.signOut();
+
+      showAuthMessage(
+        "Você saiu da conta.",
+        "info"
+      );
+
+    } catch (error) {
+
+      console.error(
+        error
+      );
+
+      showAuthMessage(
+        "Erro ao sair da conta.",
+        "error"
+      );
+
+    }
+
+  }
 );
 
 
 /* =========================================================
-   11. ESTADO DO USUÁRIO
+   11. OBSERVAR LOGIN
    ========================================================= */
 
-async function handleAuthStateChanged(user) {
+if (auth) {
 
-  currentUser = user;
+  auth.onAuthStateChanged(
+    async function (user) {
 
-  if (user) {
+      currentUser =
+        user;
 
-    loginArea.classList.add("hidden");
+      if (user) {
 
-    userArea.classList.remove("hidden");
+        loginArea.classList.add(
+          "hidden"
+        );
 
-    userEmail.textContent =
-      user.email || "Usuário";
+        userArea.classList.remove(
+          "hidden"
+        );
 
-    currentUserStatus.textContent =
-      "Conectado";
+        userEmail.textContent =
+          user.email || "Usuário";
 
-    await loadSavedSongs();
+        currentUserStatus.textContent =
+          "Conectado";
 
-  } else {
+        await loadSavedSongs();
 
-    loginArea.classList.remove("hidden");
+      } else {
 
-    userArea.classList.add("hidden");
+        loginArea.classList.remove(
+          "hidden"
+        );
 
-    userEmail.textContent =
-      "—";
+        userArea.classList.add(
+          "hidden"
+        );
 
-    currentUserStatus.textContent =
-      "Visitante";
+        userEmail.textContent =
+          "—";
 
-    savedSongs.innerHTML = `
-      <p class="empty-message">
-        Entre na sua conta para ver suas músicas salvas.
-      </p>
-    `;
-  }
+        currentUserStatus.textContent =
+          "Visitante";
+
+        savedSongs.innerHTML = `
+          <p class="empty-message">
+            Entre na sua conta para ver suas músicas salvas.
+          </p>
+        `;
+
+      }
+
+    }
+  );
+
 }
 
 
 /* =========================================================
-   12. PREPARAR LETRA
+   12. PEGAR VERSOS
    ========================================================= */
 
-function getLyricsLines() {
+function getLyrics() {
 
   return songLyrics.value
     .split(/\r?\n/)
-    .map(line => line.trim())
-    .filter(line => line.length > 0);
+    .map(
+      line => line.trim()
+    )
+    .filter(
+      line => line.length > 0
+    );
+
 }
 
 
@@ -643,9 +632,9 @@ function getLyricsLines() {
    13. CRIAR SLIDES
    ========================================================= */
 
-function createSlidesFromLyrics(
+function createSlides(
   lyrics,
-  amount
+  verses
 ) {
 
   const slides = [];
@@ -653,18 +642,20 @@ function createSlidesFromLyrics(
   for (
     let i = 0;
     i < lyrics.length;
-    i += amount
+    i += verses
   ) {
 
     slides.push(
       lyrics.slice(
         i,
-        i + amount
+        i + verses
       )
     );
+
   }
 
   return slides;
+
 }
 
 
@@ -672,125 +663,126 @@ function createSlidesFromLyrics(
    14. GERAR SLIDES
    ========================================================= */
 
-function generateSlides() {
+generateBtn.addEventListener(
+  "click",
+  function () {
 
-  const title =
-    songTitle.value.trim();
+    const title =
+      songTitle.value.trim();
 
-  const category =
-    songCategory.value;
+    const category =
+      songCategory.value;
 
-  const lyrics =
-    getLyricsLines();
+    const lyrics =
+      getLyrics();
 
-  const amount =
-    Number(versesPerSlide.value);
+    const verses =
+      Number(
+        versesPerSlide.value
+      );
 
-  if (!title) {
+    if (!title) {
 
-    alert(
-      "Digite o nome da música."
+      alert(
+        "Digite o nome da música."
+      );
+
+      songTitle.focus();
+
+      return;
+    }
+
+    if (lyrics.length === 0) {
+
+      alert(
+        "Digite a letra da música."
+      );
+
+      songLyrics.focus();
+
+      return;
+    }
+
+    const slides =
+      createSlides(
+        lyrics,
+        verses
+      );
+
+    const song = {
+
+      id:
+        createId(),
+
+      title:
+        title,
+
+      category:
+        category,
+
+      lyrics:
+        lyrics,
+
+      versesPerSlide:
+        verses,
+
+      slides:
+        slides,
+
+      saved:
+        false
+
+    };
+
+    presentationSongs.push(
+      song
     );
 
-    songTitle.focus();
+    selectedSong =
+      song;
 
-    return;
+    renderMusicList();
+
+    renderSelectedSong();
+
+    /*
+     * Se o usuário estiver conectado,
+     * oferecemos salvar automaticamente.
+     */
+
+    if (currentUser) {
+
+      saveSongToFirestore(
+        song
+      );
+
+    }
+
+    songTitle.value = "";
+    songLyrics.value = "";
+
   }
-
-  if (lyrics.length === 0) {
-
-    alert(
-      "Digite a letra da música."
-    );
-
-    songLyrics.focus();
-
-    return;
-  }
-
-  if (!amount || amount < 1) {
-
-    alert(
-      "Escolha a quantidade de versos por slide."
-    );
-
-    return;
-  }
-
-  const slides =
-    createSlidesFromLyrics(
-      lyrics,
-      amount
-    );
-
-  const song = {
-
-    id:
-      createLocalId(),
-
-    title,
-
-    category,
-
-    lyrics,
-
-    versesPerSlide:
-      amount,
-
-    slides,
-
-    createdAt:
-      Date.now()
-  };
-
-  presentationSongs.push(song);
-
-  selectedSong = song;
-
-  renderMusicList();
-
-  renderSelectedSong();
-
-  clearEditor();
-
-}
+);
 
 
 /* =========================================================
-   15. ID LOCAL
+   15. GERAR ID
    ========================================================= */
 
-function createLocalId() {
+function createId() {
 
   return (
     Date.now().toString(36) +
     Math.random()
       .toString(36)
-      .substring(2, 9)
+      .substring(2)
   );
-}
-
-
-generateBtn.addEventListener(
-  "click",
-  generateSlides
-);
-
-
-/* =========================================================
-   16. LIMPAR EDITOR
-   ========================================================= */
-
-function clearEditor() {
-
-  songTitle.value = "";
-  songLyrics.value = "";
 
 }
 
 
 /* =========================================================
-   17. RENDERIZAR LISTA DE MÚSICAS
+   16. LISTA DE MÚSICAS DA APRESENTAÇÃO
    ========================================================= */
 
 function renderMusicList() {
@@ -800,9 +792,12 @@ function renderMusicList() {
   musicCount.textContent =
     presentationSongs.length === 1
       ? "1 música"
-      : ${presentationSongs.length} músicas;
+      : presentationSongs.length +
+        " músicas";
 
-  if (presentationSongs.length === 0) {
+  if (
+    presentationSongs.length === 0
+  ) {
 
     musicList.innerHTML = `
       <div class="empty-state">
@@ -825,10 +820,12 @@ function renderMusicList() {
   }
 
   presentationSongs.forEach(
-    song => {
+    function (song) {
 
       const card =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
       card.className =
         "music-card";
@@ -856,53 +853,76 @@ function renderMusicList() {
           <button
             type="button"
             class="btn"
-            data-action="select">
+            data-view>
             👁️ Ver
           </button>
 
           <button
             type="button"
             class="btn danger"
-            data-action="delete">
+            data-delete>
             🗑️
           </button>
 
         </div>
       `;
 
-      const selectButton =
-        card.querySelector(
-          '[data-action="select"]'
+      card
+        .querySelector("[data-view]")
+        .addEventListener(
+          "click",
+          function () {
+
+            selectedSong =
+              song;
+
+            renderSelectedSong();
+
+          }
         );
 
-      const deleteButton =
-        card.querySelector(
-          '[data-action="delete"]'
+      card
+        .querySelector("[data-delete]")
+        .addEventListener(
+          "click",
+          function () {
+
+            const confirmed =
+              confirm(
+                "Deseja remover esta música?"
+              );
+
+            if (!confirmed) {
+              return;
+            }
+
+            presentationSongs =
+              presentationSongs.filter(
+                item =>
+                  item.id !== song.id
+              );
+
+            if (
+              selectedSong &&
+              selectedSong.id === song.id
+            ) {
+
+              selectedSong =
+                null;
+
+              renderEmptySlides();
+
+            }
+
+            renderMusicList();
+
+          }
         );
 
-      selectButton.addEventListener(
-        "click",
-        () => {
-
-          selectedSong = song;
-
-          renderSelectedSong();
-
-        }
+      musicList.appendChild(
+        card
       );
 
-      deleteButton.addEventListener(
-        "click",
-        () => {
-
-          deletePresentationSong(
-            song.id
-          );
-
-        }
-      );
-
-      musicList.appendChild(card);
     }
   );
 
@@ -910,51 +930,7 @@ function renderMusicList() {
 
 
 /* =========================================================
-   18. EXCLUIR MÚSICA DA APRESENTAÇÃO
-   ========================================================= */
-
-function deletePresentationSong(id) {
-
-  const confirmed =
-    confirm(
-      "Deseja remover esta música da apresentação?"
-    );
-
-  if (!confirmed) {
-    return;
-  }
-
-  presentationSongs =
-    presentationSongs.filter(
-      song => song.id !== id
-    );
-
-  if (
-    selectedSong &&
-    selectedSong.id === id
-  ) {
-
-    selectedSong = null;
-
-    selectedSongTitle.textContent =
-      "Slides";
-
-    selectedSongInfo.textContent =
-      "Os slides aparecerão aqui.";
-
-    renderEmptySlides();
-
-    startPresentationBtn.disabled =
-      true;
-  }
-
-  renderMusicList();
-
-}
-
-
-/* =========================================================
-   19. MOSTRAR MÚSICA SELECIONADA
+   17. MOSTRAR SLIDES
    ========================================================= */
 
 function renderSelectedSong() {
@@ -973,22 +949,28 @@ function renderSelectedSong() {
     selectedSong.title;
 
   selectedSongInfo.textContent =
-    `${selectedSong.category} • ` +
-    `${selectedSong.lyrics.length} versos • ` +
-    ${selectedSong.slides.length} slides;
+    selectedSong.category +
+    " • " +
+    selectedSong.lyrics.length +
+    " versos • " +
+    selectedSong.slides.length +
+    " slides";
 
-  slidesContainer.innerHTML = "";
+  slidesContainer.innerHTML =
+    "";
 
   selectedSong.slides.forEach(
-    (slide, index) => {
+    function (slide, index) {
 
-      const slideElement =
-        document.createElement("div");
+      const element =
+        document.createElement(
+          "div"
+        );
 
-      slideElement.className =
+      element.className =
         "slide-preview";
 
-      slideElement.innerHTML = `
+      element.innerHTML = `
 
         <div class="slide-number">
           Slide ${index + 1}
@@ -1008,8 +990,9 @@ function renderSelectedSong() {
       `;
 
       slidesContainer.appendChild(
-        slideElement
+        element
       );
+
     }
   );
 
@@ -1020,10 +1003,16 @@ function renderSelectedSong() {
 
 
 /* =========================================================
-   20. SLIDES VAZIOS
+   18. SLIDES VAZIOS
    ========================================================= */
 
 function renderEmptySlides() {
+
+  selectedSongTitle.textContent =
+    "Slides";
+
+  selectedSongInfo.textContent =
+    "Os slides aparecerão aqui.";
 
   slidesContainer.innerHTML = `
 
@@ -1042,50 +1031,45 @@ function renderEmptySlides() {
     </div>
   `;
 
+  startPresentationBtn.disabled =
+    true;
+
 }
 
 
 /* =========================================================
-   21. APRESENTAÇÃO
+   19. INICIAR APRESENTAÇÃO
    ========================================================= */
-
-function startPresentation() {
-
-  if (!selectedSong) {
-    return;
-  }
-
-  presentationSlides =
-    selectedSong.slides;
-
-  if (
-    presentationSlides.length === 0
-  ) {
-    return;
-  }
-
-  currentPresentationSlide = 0;
-
-  presentationSongName.textContent =
-    selectedSong.title;
-
-  presentationModal.classList.remove(
-    "hidden"
-  );
-
-  updatePresentation();
-
-}
-
 
 startPresentationBtn.addEventListener(
   "click",
-  startPresentation
+  function () {
+
+    if (!selectedSong) {
+      return;
+    }
+
+    presentationSlides =
+      selectedSong.slides;
+
+    currentPresentationSlide =
+      0;
+
+    presentationSongName.textContent =
+      selectedSong.title;
+
+    presentationModal.classList.remove(
+      "hidden"
+    );
+
+    updatePresentation();
+
+  }
 );
 
 
 /* =========================================================
-   22. ATUALIZAR APRESENTAÇÃO
+   20. ATUALIZAR APRESENTAÇÃO
    ========================================================= */
 
 function updatePresentation() {
@@ -1110,14 +1094,127 @@ function updatePresentation() {
       .join("");
 
   presentationCounter.textContent =
-    `Slide ${
-      currentPresentationSlide + 1
-    } de ${
-      presentationSlides.length
-    }`;
+    "Slide " +
+    (currentPresentationSlide + 1) +
+    " de " +
+    presentationSlides.length;
 
   previousSlideBtn.disabled =
     currentPresentationSlide === 0;
 
   nextSlideBtn.disabled =
-    currentPresentationSl
+    currentPresentationSlide ===
+    presentationSlides.length - 1;
+
+}
+
+
+/* =========================================================
+   21. PRÓXIMO SLIDE
+   ========================================================= */
+
+nextSlideBtn.addEventListener(
+  "click",
+  function () {
+
+    if (
+      currentPresentationSlide <
+      presentationSlides.length - 1
+    ) {
+
+      currentPresentationSlide++;
+
+      updatePresentation();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   22. SLIDE ANTERIOR
+   ========================================================= */
+
+previousSlideBtn.addEventListener(
+  "click",
+  function () {
+
+    if (
+      currentPresentationSlide > 0
+    ) {
+
+      currentPresentationSlide--;
+
+      updatePresentation();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   23. FECHAR APRESENTAÇÃO
+   ========================================================= */
+
+closePresentationBtn.addEventListener(
+  "click",
+  function () {
+
+    presentationModal.classList.add(
+      "hidden"
+    );
+
+  }
+);
+
+
+/* =========================================================
+   24. TECLADO
+   ========================================================= */
+
+document.addEventListener(
+  "keydown",
+  function (event) {
+
+    if (
+      presentationModal.classList.contains(
+        "hidden"
+      )
+    ) {
+
+      return;
+
+    }
+
+    if (
+      event.key === "ArrowRight"
+    ) {
+
+      nextSlideBtn.click();
+
+    }
+
+    if (
+      event.key === "ArrowLeft"
+    ) {
+
+      previousSlideBtn.click();
+
+    }
+
+    if (
+      event.key === "Escape"
+    ) {
+
+      closePresentationBtn.click();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   25. SALVAR NO FIRESTORE
