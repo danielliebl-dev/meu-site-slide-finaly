@@ -2,15 +2,24 @@
 <html lang="pt-BR">
 
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
 
   <title>Repertório de Slides</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css">
+
 </head>
 
+
 <body>
+
 
   <!-- =====================================================
        TOPO
@@ -19,69 +28,107 @@
   <header class="topbar">
 
     <div class="brand">
+
       <span class="brand-icon">🎵</span>
+
       <div>
-        <h1>Repertório de Slides</h1>
-        <p>Organize suas músicas e apresentações</p>
+
+        <h1>
+          Repertório de Slides
+        </h1>
+
+        <p>
+          Organize suas músicas e apresentações
+        </p>
+
       </div>
+
     </div>
+
 
     <button
       id="saveMenuBtn"
       class="top-save-btn"
       type="button">
+
       💾 Salvar Música
+
     </button>
 
   </header>
 
 
+
   <!-- =====================================================
-       MENU SALVAR MÚSICA
+       PAINEL DE SALVAR / LOGIN
   ====================================================== -->
 
   <aside
     id="savePanel"
     class="save-panel hidden">
 
+
     <div class="panel-header">
 
       <div>
-        <h2>💾 Salvar Música</h2>
-        <p>Entre para guardar seu repertório.</p>
+
+        <h2>
+          💾 Salvar Música
+        </h2>
+
+        <p>
+          Entre para guardar seu repertório.
+        </p>
+
       </div>
+
 
       <button
         id="closeSavePanelBtn"
         class="close-panel-btn"
         type="button">
+
         ×
+
       </button>
 
     </div>
 
 
-    <!-- LOGIN -->
+
+    <!-- ===================================================
+         LOGIN
+    ==================================================== -->
 
     <div id="loginArea">
 
-      <h3>🔐 Sua conta</h3>
+      <h3>
+        🔐 Sua conta
+      </h3>
+
 
       <p class="panel-info">
+
         Você pode criar os slides sem conta.
         O login é necessário somente para
         guardar suas músicas permanentemente.
+
       </p>
+
 
       <input
         id="emailInput"
         type="email"
-        placeholder="Seu e-mail">
+        placeholder="Seu e-mail"
+        autocomplete="email">
+
 
       <input
         id="passwordInput"
         type="password"
-        placeholder="Sua senha">
+        placeholder="Sua senha"
+        autocomplete="current-password">
+
 
       <div class="login-buttons">
 
@@ -89,17 +136,23 @@
           id="loginBtn"
           class="btn primary"
           type="button">
+
           Entrar
+
         </button>
+
 
         <button
           id="registerBtn"
           class="btn secondary"
           type="button">
+
           Criar Conta
+
         </button>
 
       </div>
+
 
       <p
         id="authMessage"
@@ -109,15 +162,22 @@
     </div>
 
 
-    <!-- USUÁRIO LOGADO -->
+
+    <!-- ===================================================
+         USUÁRIO LOGADO
+    ==================================================== -->
 
     <div
       id="userArea"
       class="hidden">
 
+
       <div class="logged-user">
 
-        <span>👤 Usuário conectado</span>
+        <span>
+          👤 Usuário conectado
+        </span>
+
 
         <strong id="userEmail">
           —
@@ -125,28 +185,53 @@
 
       </div>
 
+
+      <!-- BOTÃO PARA SALVAR A MÚSICA ATUAL -->
+
+      <button
+        id="saveCurrentSongBtn"
+        class="btn primary"
+        type="button">
+
+        💾 Salvar Música Atual
+
+      </button>
+
+
+      <!-- SAIR -->
+
       <button
         id="logoutBtn"
         class="btn danger"
         type="button">
+
         Sair da conta
+
       </button>
 
     </div>
 
 
-    <!-- REPERTÓRIO SALVO -->
+
+    <!-- ===================================================
+         STATUS
+    ==================================================== -->
 
     <section class="saved-section">
 
-      <h3>📚 Meu Repertório</h3>
+      <h3>
+        📚 Meu Repertório
+      </h3>
+
 
       <div
         id="savedSongs"
         class="saved-songs">
 
         <p class="empty-message">
+
           Entre na sua conta para ver suas músicas salvas.
+
         </p>
 
       </div>
@@ -154,108 +239,154 @@
     </section>
 
 
-    <!-- FILTROS -->
+
+    <!-- ===================================================
+         FILTROS
+    ==================================================== -->
 
     <section class="filter-section">
 
-      <h3>🔎 Filtrar Repertório</h3>
+      <h3>
+        🔎 Filtrar Repertório
+      </h3>
+
 
       <div class="filter-buttons">
+
 
         <button
           class="filter-btn active"
           data-filter="Todos"
           type="button">
+
           Todos
+
         </button>
+
 
         <button
           class="filter-btn"
           data-filter="Entrada"
           type="button">
+
           Entrada
+
         </button>
+
 
         <button
           class="filter-btn"
           data-filter="Salmo"
           type="button">
+
           Salmo
+
         </button>
+
 
         <button
           class="filter-btn"
           data-filter="Ofertório"
           type="button">
+
           Ofertório
+
         </button>
+
 
         <button
           class="filter-btn"
           data-filter="Comunhão"
           type="button">
+
           Comunhão
+
         </button>
+
 
         <button
           class="filter-btn"
           data-filter="Final"
           type="button">
+
           Final
+
         </button>
+
 
         <button
           class="filter-btn"
           data-filter="Outros"
           type="button">
+
           Outros
+
         </button>
+
 
       </div>
 
     </section>
 
+
   </aside>
 
 
+
   <!-- =====================================================
-       ÁREA PRINCIPAL
+       CONTEÚDO PRINCIPAL
   ====================================================== -->
 
   <main class="main-container">
 
 
-    <!-- FORMULÁRIO DA MÚSICA -->
+
+    <!-- ===================================================
+         CRIAR MÚSICA
+    ==================================================== -->
 
     <section class="music-editor">
+
 
       <div class="section-title">
 
         <div>
-          <h2>🎼 Criar Slides</h2>
+
+          <h2>
+            🎼 Criar Slides
+          </h2>
 
           <p>
             Monte sua música e gere os slides
             para apresentação.
           </p>
+
         </div>
+
 
         <span
           id="currentUserStatus"
           class="user-status">
+
           Visitante
+
         </span>
 
       </div>
 
 
+
+      <!-- DADOS DA MÚSICA -->
+
       <div class="form-grid">
+
 
         <div class="field">
 
           <label for="songTitle">
             Nome da música
           </label>
+
 
           <input
             id="songTitle"
@@ -265,37 +396,46 @@
         </div>
 
 
+
         <div class="field">
 
           <label for="songCategory">
             Categoria
           </label>
 
+
           <select id="songCategory">
+
 
             <option value="Entrada">
               Entrada
             </option>
 
+
             <option value="Salmo">
               Salmo
             </option>
+
 
             <option value="Ofertório">
               Ofertório
             </option>
 
+
             <option value="Comunhão">
               Comunhão
             </option>
+
 
             <option value="Final">
               Final
             </option>
 
+
             <option value="Outros">
               Outros
             </option>
+
 
           </select>
 
@@ -303,6 +443,9 @@
 
       </div>
 
+
+
+      <!-- LETRA -->
 
       <div class="field">
 
@@ -310,53 +453,97 @@
           Letra da música
         </label>
 
+
         <textarea
           id="songLyrics"
           placeholder="Cole ou digite a letra aqui...
 
-Separe cada verso por uma linha."></textarea>
+Separe cada verso por uma linha.">
+        </textarea>
+
+
+        <!-- CONTADOR DE VERSOS -->
+
+        <div
+          id="verseCount"
+          class="verse-count">
+
+          0 versos
+
+        </div>
 
       </div>
 
 
+
+      <!-- CONFIGURAÇÃO DOS SLIDES -->
+
       <div class="editor-bottom">
+
 
         <div class="field verses-field">
 
           <label for="versesPerSlide">
+
             Quantidade de versos por slide
+
           </label>
+
 
           <select id="versesPerSlide">
 
+
             <option value="1">
+
               1 verso
+
             </option>
 
-            <option value="2" selected>
+
+            <option
+              value="2"
+              selected>
+
               2 versos
+
             </option>
+
 
             <option value="3">
+
               3 versos
+
             </option>
+
 
             <option value="4">
+
               4 versos
+
             </option>
+
 
             <option value="5">
+
               5 versos
+
             </option>
 
+
             <option value="6">
+
               6 versos
+
             </option>
+
 
           </select>
 
         </div>
 
+
+
+        <!-- BOTÃO GERAR -->
 
         <button
           id="generateBtn"
@@ -367,9 +554,11 @@ Separe cada verso por uma linha."></textarea>
 
         </button>
 
+
       </div>
 
     </section>
+
 
 
     <!-- ===================================================
@@ -378,34 +567,50 @@ Separe cada verso por uma linha."></textarea>
 
     <section class="presentation-list-section">
 
+
       <div class="section-title">
 
+
         <div>
-          <h2>📋 Músicas da apresentação</h2>
+
+          <h2>
+            📋 Músicas da apresentação
+          </h2>
+
 
           <p>
             Aqui ficam as músicas que você preparou.
           </p>
+
         </div>
 
+
         <span id="musicCount">
+
           0 músicas
+
         </span>
 
       </div>
+
 
 
       <div
         id="musicList"
         class="music-list">
 
+
         <div class="empty-state">
 
-          <span>🎵</span>
+          <span>
+            🎵
+          </span>
+
 
           <h3>
             Nenhuma música adicionada
           </h3>
+
 
           <p>
             Preencha os campos acima e clique
@@ -414,28 +619,41 @@ Separe cada verso por uma linha."></textarea>
 
         </div>
 
+
       </div>
 
     </section>
 
 
+
     <!-- ===================================================
-         SLIDES GERADOS
+         SLIDES
     ==================================================== -->
 
     <section class="slides-section">
 
+
       <div class="section-title">
 
+
         <div>
+
           <h2 id="selectedSongTitle">
+
             Slides
+
           </h2>
 
+
           <p id="selectedSongInfo">
+
             Os slides aparecerão aqui.
+
           </p>
+
         </div>
+
+
 
         <button
           id="startPresentationBtn"
@@ -450,17 +668,23 @@ Separe cada verso por uma linha."></textarea>
       </div>
 
 
+
       <div
         id="slidesContainer"
         class="slides-container">
 
+
         <div class="empty-state">
 
-          <span>📺</span>
+          <span>
+            📺
+          </span>
+
 
           <h3>
             Aguardando slides
           </h3>
+
 
           <p>
             Gere uma música para começar.
@@ -468,66 +692,89 @@ Separe cada verso por uma linha."></textarea>
 
         </div>
 
+
       </div>
 
     </section>
 
+
   </main>
 
 
+
   <!-- =====================================================
-       MODAL DE APRESENTAÇÃO
+       MODAL DA APRESENTAÇÃO
   ====================================================== -->
 
   <div
     id="presentationModal"
     class="presentation-modal hidden">
 
+
     <div
       id="presentationContent"
       class="presentation-content">
+
 
       <div
         id="presentationSongName"
         class="presentation-song-name">
       </div>
 
+
       <div
         id="presentationText"
         class="presentation-text">
       </div>
+
 
       <div
         id="presentationCounter"
         class="presentation-counter">
       </div>
 
+
     </div>
 
 
+
+    <!-- CONTROLES -->
+
     <div class="presentation-controls">
+
 
       <button
         id="previousSlideBtn"
         type="button">
+
         ◀️ Anterior
+
       </button>
+
 
       <button
         id="closePresentationBtn"
         type="button">
+
         ✕ Fechar
+
       </button>
+
 
       <button
         id="nextSlideBtn"
         type="button">
+
         Próximo ▶️
+
       </button>
+
 
     </div>
 
+
   </div>
+
 
 
   <!-- =====================================================
@@ -541,9 +788,13 @@ Separe cada verso por uma linha."></textarea>
   <script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore-compat.js"></script>
 
 
-  <!-- SEU JAVASCRIPT -->
+
+  <!-- =====================================================
+       SEU SCRIPT
+  ====================================================== -->
 
   <script src="script.js"></script>
+
 
 </body>
 
