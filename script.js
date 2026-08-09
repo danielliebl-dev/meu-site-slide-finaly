@@ -1217,4 +1217,963 @@ document.addEventListener(
 
 
 /* =========================================================
+   25. SALVAR NO FIRESTORE/* =========================================================
    25. SALVAR NO FIRESTORE
+   ========================================================= */
+
+async function saveSongToFirestore(song) {
+
+  if (!currentUser) {
+
+    console.warn(
+      "Usuário não está conectado."
+    );
+
+    return false;
+
+  }
+
+  if (!db) {
+
+    console.error(
+      "Firestore não está conectado."
+    );
+
+    showAuthMessage(
+      "O banco de dados não está conectado.",
+      "error"
+    );
+
+    return false;
+
+  }
+
+  try {
+
+    const songData = {
+
+      title:
+        song.title,
+
+      category:
+        song.category || "Geral",
+
+      lyrics:
+        song.lyrics,
+
+      versesPerSlide:
+        song.versesPerSlide,
+
+      slides:
+        song.slides,
+
+      userId:
+        currentUser.uid,
+
+      userEmail:
+        currentUser.email || "",
+
+      createdAt:
+        firebase.firestore.FieldValue.serverTimestamp(),
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+
+    };
+
+
+    /*
+     * Cada usuário possui sua própria coleção.
+     *
+     * Caminho:
+     *
+     * users
+     *   └── UID
+     *       └── songs
+     */
+
+    const documentReference =
+      await db
+        .collection("users")
+        .doc(currentUser.uid)
+        .collection("songs")
+        .doc(song.id)
+        .set(songData);
+
+
+    song.saved =
+      true;
+
+
+    console.log(
+      "Música salva no Firestore:",
+      song.id
+    );
+
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao salvar música no Firestore:",
+      error
+    );
+
+
+    showAuthMessage(
+      "Erro ao salvar a música.",
+      "error"
+    );
+
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   26. CARREGAR MÚSICAS SALVAS
+   ========================================================= */
+
+async function loadSavedSongs() {
+
+  if (!currentUser) {
+    return;
+  }
+
+  if (!db) {
+
+    console.error(
+      "Firestore não está conectado."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    savedSongs.innerHTML = `
+
+      <p class="empty-message">
+        Carregando suas músicas...
+      </p>
+
+    `;
+
+
+    const snapshot =
+      await db
+        .collection("users")
+        .doc(currentUser.uid)
+        .collection("songs")
+        .orderBy(
+          "createdAt",
+          "desc"
+        )
+        .get();
+
+
+    presentationSongs = [];
+
+
+    snapshot.forEach(
+      function (doc) {
+
+        const data =
+          doc.data();
+
+
+        const song = {
+
+          id:
+            doc.id,
+
+          title:
+            data.title || "Sem título",
+
+          category:
+            data.category || "Geral",
+
+          lyrics:
+            Array.isArray(data.lyrics)
+              ? data.lyrics
+              : [],
+
+          versesPerSlide:
+            Number(
+              data.versesPerSlide
+            ) || 1,
+
+          slides:
+            Array.isArray(data.slides)
+              ? data.slides
+              : [],
+
+          saved:
+            true
+
+        };
+
+
+        presentationSongs.push(
+          song
+        );
+
+      }
+    );
+
+
+    renderMusicList();
+
+    renderSavedSongs();
+
+
+    console.log(
+      presentationSongs.length +
+      " músicas carregadas."
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao carregar músicas:",
+      error
+    );
+
+
+    savedSongs.innerHTML = `
+
+      <p class="empty-message">
+        Não foi possível carregar suas músicas.
+      </p>
+
+    `;
+
+  }
+
+}
+
+
+/* =========================================================
+   27. MOSTRAR MÚSICAS SALVAS
+   ========================================================= */
+
+function renderSavedSongs() {
+
+  if (!savedSongs) {
+    return;
+  }
+
+
+  savedSongs.innerHTML = "";
+
+
+  if (
+    presentationSongs.length === 0
+  ) {
+
+    savedSongs.innerHTML = `
+
+      <div class="empty-state">
+
+        <span>🎵</span>
+
+        <h3>
+          Nenhuma música salva
+        </h3>
+
+        <p>
+          Gere uma música e salve no seu repertório.
+        </p>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  presentationSongs.forEach(
+    function (song) {
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      card.className =
+        "saved-song-card";
+
+
+      card.innerHTML = `
+
+        <div class="saved-song-info">
+
+          <h3>
+            ${escapeHTML(song.title)}
+          </h3>
+
+          <p>
+            ${escapeHTML(song.category)}
+          </p>
+
+          <small>
+            ${song.lyrics.length} versos
+            •
+            ${song.slides.length} slides
+          </small>
+
+        </div>
+
+
+        <div class="saved-song-actions">
+
+          <button
+            type="button"
+            class="btn"
+            data-load-song>
+            📺 Abrir
+          </button>
+
+
+          <button
+            type="button"
+            class="btn danger"
+            data-delete-saved>
+            🗑️ Excluir
+          </button>
+
+        </div>
+
+      `;
+
+
+      /*
+       * Abrir música
+       */
+
+      card
+        .querySelector(
+          "[data-load-song]"
+        )
+        .addEventListener(
+          "click",
+          function () {
+
+            selectedSong =
+              song;
+
+
+            renderSelectedSong();
+
+
+            /*
+             * Fecha o painel de salvar
+             */
+
+            if (savePanel) {
+
+              savePanel.classList.add(
+                "hidden"
+              );
+
+            }
+
+          }
+        );
+
+
+      /*
+       * Excluir música
+       */
+
+      card
+        .querySelector(
+          "[data-delete-saved]"
+        )
+        .addEventListener(
+          "click",
+          async function () {
+
+            await deleteSongFromFirestore(
+              song
+            );
+
+          }
+        );
+
+
+      savedSongs.appendChild(
+        card
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   28. EXCLUIR MÚSICA DO FIRESTORE
+   ========================================================= */
+
+async function deleteSongFromFirestore(
+  song
+) {
+
+  if (!currentUser) {
+
+    showAuthMessage(
+      "Faça login para excluir músicas.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  if (!db) {
+
+    showAuthMessage(
+      "O banco de dados não está conectado.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const confirmed =
+    confirm(
+      Deseja excluir "${song.title}" do seu repertório?
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    await db
+      .collection("users")
+      .doc(currentUser.uid)
+      .collection("songs")
+      .doc(song.id)
+      .delete();
+
+
+    /*
+     * Remove também da lista local
+     */
+
+    presentationSongs =
+      presentationSongs.filter(
+        function (item) {
+
+          return item.id !== song.id;
+
+        }
+      );
+
+
+    /*
+     * Se a música excluída estava selecionada,
+     * limpamos os slides.
+     */
+
+    if (
+      selectedSong &&
+      selectedSong.id === song.id
+    ) {
+
+      selectedSong =
+        null;
+
+      renderEmptySlides();
+
+    }
+
+
+    renderMusicList();
+
+    renderSavedSongs();
+
+
+    showAuthMessage(
+      "Música excluída com sucesso.",
+      "success"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao excluir música:",
+      error
+    );
+
+
+    showAuthMessage(
+      "Não foi possível excluir a música.",
+      "error"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   29. SALVAR ALTERAÇÃO DE UMA MÚSICA
+   ========================================================= */
+
+async function updateSongInFirestore(
+  song
+) {
+
+  if (!currentUser || !db) {
+    return false;
+  }
+
+
+  try {
+
+    await db
+      .collection("users")
+      .doc(currentUser.uid)
+      .collection("songs")
+      .doc(song.id)
+      .update({
+
+        title:
+          song.title,
+
+        category:
+          song.category,
+
+        lyrics:
+          song.lyrics,
+
+        versesPerSlide:
+          song.versesPerSlide,
+
+        slides:
+          song.slides,
+
+        updatedAt:
+          firebase.firestore.FieldValue.serverTimestamp()
+
+      });
+
+
+    return true;
+
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao atualizar música:",
+      error
+    );
+
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   30. FUNÇÃO ESCAPE HTML
+   ========================================================= */
+
+function escapeHTML(
+  text
+) {
+
+  if (
+    text === null ||
+    text === undefined
+  ) {
+
+    return "";
+
+  }
+
+
+  return String(text)
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   31. FILTRO DE CATEGORIAS
+   ========================================================= */
+
+function filterSongs(
+  category
+) {
+
+  currentFilter =
+    category;
+
+
+  const cards =
+    musicList.querySelectorAll(
+      ".music-card"
+    );
+
+
+  cards.forEach(
+    function (card) {
+
+      const song =
+        presentationSongs.find(
+          function (item) {
+
+            return (
+              escapeHTML(item.title) ===
+              card.querySelector("h3").textContent
+            );
+
+          }
+        );
+
+
+      if (!song) {
+        return;
+      }
+
+
+      if (
+        category === "Todos" ||
+        song.category === category
+      ) {
+
+        card.style.display =
+          "";
+
+      } else {
+
+        card.style.display =
+          "none";
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   32. ATUALIZAR QUANTIDADE DE VERSOS
+   ========================================================= */
+
+function updateVerseCounter() {
+
+  if (!songLyrics) {
+    return;
+  }
+
+
+  const lyrics =
+    songLyrics.value
+      .split(/\r?\n/)
+      .map(
+        line => line.trim()
+      )
+      .filter(
+        line => line.length > 0
+      );
+
+
+  const counter =
+    document.getElementById(
+      "verseCount"
+    );
+
+
+  if (counter) {
+
+    counter.textContent =
+      lyrics.length +
+      (
+        lyrics.length === 1
+          ? " verso"
+          : " versos"
+      );
+
+  }
+
+}
+
+
+/* =========================================================
+   33. ATUALIZAR CONTADOR ENQUANTO DIGITA
+   ========================================================= */
+
+if (songLyrics) {
+
+  songLyrics.addEventListener(
+    "input",
+    updateVerseCounter
+  );
+
+}
+
+
+/* =========================================================
+   34. SALVAR MANUALMENTE A MÚSICA ATUAL
+   ========================================================= */
+
+async function saveCurrentSong() {
+
+  if (!selectedSong) {
+
+    alert(
+      "Primeiro gere ou selecione uma música."
+    );
+
+    return;
+
+  }
+
+
+  if (!currentUser) {
+
+    alert(
+      "Faça login para salvar músicas."
+    );
+
+    return;
+
+  }
+
+
+  const success =
+    await saveSongToFirestore(
+      selectedSong
+    );
+
+
+  if (success) {
+
+    renderSavedSongs();
+
+    showAuthMessage(
+      "Música salva no seu repertório!",
+      "success"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   35. BOTÃO SALVAR MÚSICA
+   ========================================================= */
+
+const saveCurrentSongBtn =
+  document.getElementById(
+    "saveCurrentSongBtn"
+  );
+
+
+if (saveCurrentSongBtn) {
+
+  saveCurrentSongBtn.addEventListener(
+    "click",
+    saveCurrentSong
+  );
+
+}
+
+
+/* =========================================================
+   36. INICIALIZAÇÃO FINAL
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    initializeInterface();
+
+    updateVerseCounter();
+
+    console.log(
+      "Repertório de Slides iniciado."
+    );
+
+  }
+);
+
+
+/* =========================================================
+   37. EVITAR ERROS COM ELEMENTOS AUSENTES
+   ========================================================= */
+
+function safeAddEventListener(
+  element,
+  event,
+  callback
+) {
+
+  if (!element) {
+    return;
+  }
+
+
+  element.addEventListener(
+    event,
+    callback
+  );
+
+}
+
+
+/* =========================================================
+   38. DUPLO CLIQUE PARA ABRIR APRESENTAÇÃO
+   ========================================================= */
+
+safeAddEventListener(
+  slidesContainer,
+  "dblclick",
+  function () {
+
+    if (
+      selectedSong &&
+      !startPresentationBtn.disabled
+    ) {
+
+      startPresentationBtn.click();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   39. ATALHOS DE TECLADO
+   ========================================================= */
+
+document.addEventListener(
+  "keydown",
+  function (event) {
+
+    /*
+     * Espaço inicia a apresentação
+     */
+
+    if (
+      event.code === "Space" &&
+      selectedSong &&
+      presentationModal.classList.contains(
+        "hidden"
+      )
+    ) {
+
+      const activeElement =
+        document.activeElement;
+
+
+      /*
+       * Não executar enquanto o usuário
+       * estiver digitando em um campo.
+       */
+
+      const isTyping =
+        activeElement &&
+        (
+          activeElement.tagName ===
+          "INPUT" ||
+          activeElement.tagName ===
+          "TEXTAREA"
+        );
+
+
+      if (!isTyping) {
+
+        event.preventDefault();
+
+        startPresentationBtn.click();
+
+      }
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   40. FINAL
+   ========================================================= */
+
+console.log(
+  "======================================="
+);
+
+console.log(
+  " REPERTÓRIO DE SLIDES"
+);
+
+console.log(
+  " Sistema carregado."
+);
+
+console.log(
+  " Firebase:",
+  auth ? "OK" : "ERRO"
+);
+
+console.log(
+  " Firestore:",
+  db ? "OK" : "ERRO"
+);
+
+console.log(
+  "======================================="
+);
